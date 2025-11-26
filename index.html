@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今天吃什麼？(隨機版)</title>
+    <title>今天吃什麼？(拉霸機版)</title>
     <style>
         /* --- CSS 樣式區域 --- */
         body {
-            font-family: 'Microsoft JhengHei', 'Heiti TC', sans-serif;
+            font-family: 'Microsoft JhengHei', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #fff3e0; /* 溫暖的米橘色背景 */
+            background-color: #2b2b2b; /* 改成深色背景，突顯機台 */
+            color: #333;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,19 +20,27 @@
 
         .container {
             width: 90%;
-            max-width: 420px;
+            max-width: 450px;
             margin-top: 30px;
             padding: 25px;
-            background: white;
+            background: #f4f4f4;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            /* 機台立體感 */
+            box-shadow: 
+                inset 0 0 20px rgba(255,255,255,0.5),
+                0 10px 30px rgba(0,0,0,0.5);
+            border: 8px solid #444;
         }
 
         h1 {
             text-align: center;
-            color: #ff6b6b;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px dashed #aaa;
+            padding-bottom: 10px;
         }
 
         .group {
@@ -46,189 +55,185 @@
             font-size: 1rem;
         }
 
-        /* 按鈕選項樣式 (Radio Button 改裝) */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-group input[type="radio"] {
-            display: none; /* 隱藏原本的圓點 */
-        }
-
+        /* --- 選項按鈕樣式 --- */
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group input[type="radio"] { display: none; }
+        
         .btn {
             flex: 1;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
-            color: #888;
-            font-weight: 500;
+            transition: 0.2s;
+            background: #e8e8e8;
+            font-weight: bold;
         }
 
-        /* 選中時的樣式 */
         input[type="radio"]:checked + .btn {
-            background-color: #ff8e8e;
-            color: white;
-            border-color: #ff8e8e;
-            box-shadow: 0 4px 10px rgba(255, 142, 142, 0.4);
-            transform: translateY(-2px);
+            background-color: #ffcc00; /* 黃色亮燈感 */
+            color: #333;
+            border-color: #ffaa00;
+            box-shadow: 0 0 10px #ffcc00;
+            transform: scale(1.02);
         }
 
-        /* 滑桿樣式 */
+        /* --- 優化後的金額滑桿 --- */
+        .budget-container {
+            background: #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
         input[type="range"] {
             width: 100%;
-            height: 8px;
-            background: #e0e0e0;
+            height: 10px;
+            background: #888;
             border-radius: 5px;
             outline: none;
             -webkit-appearance: none;
+            margin: 15px 0;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #ff6b6b;
+            background: #ff4757;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
         }
+        
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
+        .price-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #d63031;
             margin-top: 5px;
-            font-size: 0.9rem;
-            color: #888;
         }
 
-        /* 開始按鈕 */
+        /* --- 拉霸機螢幕 --- */
+        .slot-machine-screen {
+            background-color: #000;
+            border: 5px solid #666;
+            border-radius: 10px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px #000;
+        }
+
+        /* 螢幕反光效果 */
+        .slot-machine-screen::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .screen-text {
+            color: #00ff00; /* 復古綠色螢幕字 */
+            font-family: 'Courier New', monospace; /* 等寬字體更有數位感 */
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 0 10px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .screen-subtext {
+            color: #00cc00;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        /* 中獎閃爍特效 */
+        @keyframes blink {
+            0% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+            50% { color: #fff; text-shadow: 0 0 20px #fff; }
+            100% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+        }
+        .winner-effect {
+            animation: blink 0.5s infinite;
+        }
+
+        /* --- 拉霸手把按鈕 --- */
         #drawBtn {
             width: 100%;
-            padding: 16px;
-            background-color: #4ecdc4;
+            padding: 15px;
+            background: linear-gradient(to bottom, #ff4757, #c0392b);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
+            border-radius: 50px; /* 圓潤按鈕 */
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 0 #36b9b0;
-            transition: transform 0.1s;
-            margin-top: 10px;
+            box-shadow: 0 6px 0 #802620, 0 15px 20px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            text-transform: uppercase;
         }
 
         #drawBtn:active {
-            transform: translateY(4px);
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #802620, inset 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        #drawBtn:disabled {
+            background: #999;
             box-shadow: none;
+            cursor: not-allowed;
+            transform: translateY(6px);
         }
 
-        /* 結果顯示區塊 */
-        #result-area {
-            width: 90%;
-            max-width: 420px;
-            margin: 20px 0 50px 0;
-            display: none; /* 預設隱藏 */
-            animation: popUp 0.4s ease-out;
-        }
-
-        @keyframes popUp {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .result-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border-top: 6px solid #ff6b6b;
-            position: relative;
-        }
-
-        .result-card h2 {
-            margin: 0;
-            font-size: 1rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .food-name {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #333;
-            margin: 15px 0;
-            line-height: 1.3;
-        }
-
-        .food-tags {
-            display: inline-block;
-            background: #f0f0f0;
-            padding: 5px 15px;
-            border-radius: 20px;
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 25px;
-        }
-
-        .action-buttons {
-            display: flex;
+        /* --- 結果操作按鈕區 --- */
+        .action-area {
+            display: none; /* 預設隱藏，抽完才顯示 */
+            margin-top: 15px;
+            gap: 10px;
             flex-direction: column;
-            gap: 12px;
         }
 
-        .secondary-btn {
-            padding: 12px;
-            background: #f5f5f5;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            color: #666;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        
-        .secondary-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .primary-btn {
-            padding: 12px;
-            background: #ff6b6b;
+        .map-btn {
+            background: #3498db;
             color: white;
+            padding: 12px;
+            border-radius: 8px;
             text-decoration: none;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-2px);
+            display: block;
         }
         
-        /* 頁腳 */
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            color: #aaa;
-            font-size: 0.8rem;
+        .retry-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
         }
+
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>今天吃什麼？🤔</h1>
+        <h1>🍱 FOOD SLOT 🎰</h1>
         
         <div class="group">
             <label>口味</label>
@@ -253,149 +258,155 @@
         </div>
 
         <div class="group">
-            <label>預算上限：<span id="priceVal" style="color:#ff6b6b;">便宜 ($)</span></label>
-            <input type="range" id="budget" min="1" max="4" value="1" step="1">
-            <div class="slider-labels">
-                <span>$</span>
-                <span>$$</span>
-                <span>$$$</span>
-                <span>$$$$</span>
+            <label>預算限制</label>
+            <div class="budget-container">
+                <div id="priceDisplay" class="price-display">NT$ 0 - 150</div>
+                <input type="range" id="budget" min="1" max="4" value="1" step="1">
             </div>
         </div>
 
-        <button id="drawBtn">🎰 幫我決定！</button>
-    </div>
+        <div class="slot-machine-screen">
+            <div id="screenMain" class="screen-text">READY?</div>
+            <div id="screenSub" class="screen-subtext">請按下方按鈕</div>
+        </div>
 
-    <div id="result-area">
-        <div class="result-card">
-            <h2>Recommendation</h2>
-            <div id="foodName" class="food-name">???</div>
-            <div id="foodTags" class="food-tags"></div>
-            
-            <div class="action-buttons">
-                <a id="mapLink" href="#" target="_blank" class="primary-btn">
-                    📍 搜尋附近店家
-                </a>
-                <button id="retryBtn" class="secondary-btn">😖 不喜歡，再選一個</button>
-            </div>
+        <button id="drawBtn">🎰 SPIN !</button>
+
+        <div id="actionArea" class="action-area">
+            <a id="mapLink" href="#" target="_blank" class="map-btn">📍 用 Google 地圖找這項</a>
+            <button id="retryBtn" class="retry-btn">😖 不喜歡，再轉一次</button>
         </div>
     </div>
-
-    <footer>
-        Build with HTML/CSS/JS
-    </footer>
 
     <script>
-        /* --- JavaScript 邏輯區域 --- */
-
-        // 1. 食物資料庫
-        // 你可以自由新增這裡的項目
-        // price: 1(便宜), 2(平價), 3(稍貴), 4(豪華)
+        // --- 1. 食物資料庫 ---
+        // price 對應: 1(平價), 2(一般), 3(大餐), 4(豪華)
         const foodDatabase = [
-            // --- 鹹食 + 熱 ---
-            { name: "滷肉飯 + 燙青菜", price: 1, flavor: "鹹", temp: "熱" },
+            // 鹹 + 熱
+            { name: "滷肉飯", price: 1, flavor: "鹹", temp: "熱" },
             { name: "雞肉飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "湯包 / 小籠包", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "麥當勞", price: 2, flavor: "鹹", temp: "熱" },
             { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "麻辣燙 / 滷味", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "麥當勞 / 肯德基", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
             { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "咖哩飯", price: 2, flavor: "鹹", temp: "熱" },
             { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
             { name: "鐵板燒", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "義大利麵", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "牛排館", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "熱炒店", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "王品牛排", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "高級麻辣鍋", price: 4, flavor: "鹹", temp: "熱" },
             
-            // --- 鹹食 + 冷 ---
-            { name: "涼麵 + 味噌湯", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "超商御飯糰", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "SUBWAY 潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "壽司 / 生魚片", price: 3, flavor: "鹹", temp: "冷" },
-            { name: "凱薩沙拉", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "越式生春捲", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "冷滷味", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "韓式冷麵", price: 2, flavor: "鹹", temp: "冷" },
+            // 鹹 + 冷
+            { name: "涼麵", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "御飯糰", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "壽司拼盤", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "生魚片丼飯", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "Omakase (無菜單壽司)", price: 4, flavor: "鹹", temp: "冷" },
 
-            // --- 甜點 + 熱 ---
-            { name: "車輪餅 / 雞蛋糕", price: 1, flavor: "甜", temp: "熱" },
-            { name: "燒仙草 / 熱豆花", price: 1, flavor: "甜", temp: "熱" },
-            { name: "熱可可 + 軟餅乾", price: 2, flavor: "甜", temp: "熱" },
+            // 甜 + 熱
+            { name: "紅豆餅", price: 1, flavor: "甜", temp: "熱" },
+            { name: "燒仙草", price: 1, flavor: "甜", temp: "熱" },
+            { name: "熱可可", price: 2, flavor: "甜", temp: "熱" },
             { name: "舒芙蕾鬆餅", price: 3, flavor: "甜", temp: "熱" },
-            { name: "現烤可頌 / 麵包", price: 2, flavor: "甜", temp: "熱" },
-            { name: "芝麻糊 / 杏仁茶", price: 2, flavor: "甜", temp: "熱" },
-            { name: "熱湯圓", price: 1, flavor: "甜", temp: "熱" },
+            { name: "現烤布朗尼", price: 3, flavor: "甜", temp: "熱" },
 
-            // --- 甜點 + 冷 ---
-            { name: "手搖飲料 (微糖少冰)", price: 1, flavor: "甜", temp: "冷" },
-            { name: "剉冰 / 雪花冰", price: 2, flavor: "甜", temp: "冷" },
-            { name: "冰豆花", price: 1, flavor: "甜", temp: "冷" },
+            // 甜 + 冷
+            { name: "手搖飲", price: 1, flavor: "甜", temp: "冷" },
             { name: "便利商店霜淇淋", price: 1, flavor: "甜", temp: "冷" },
+            { name: "剉冰", price: 2, flavor: "甜", temp: "冷" },
             { name: "切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
-            { name: "水果塔", price: 3, flavor: "甜", temp: "冷" },
-            { name: "知名品牌冰淇淋", price: 3, flavor: "甜", temp: "冷" },
-            { name: "豪華下午茶套餐", price: 4, flavor: "甜", temp: "冷" }
+            { name: "哈根達斯", price: 3, flavor: "甜", temp: "冷" },
+            { name: "五星飯店下午茶", price: 4, flavor: "甜", temp: "冷" }
         ];
 
-        // 2. 初始化與事件監聽
+        // --- 2. 變數與初始化 ---
         const budgetInput = document.getElementById('budget');
-        const priceText = document.getElementById('priceVal');
-        const priceLevels = ["便宜 ($)", "平價 ($$)", "中高價 ($$$)", "豪華 ($$$$)"];
+        const priceDisplay = document.getElementById('priceDisplay');
+        const drawBtn = document.getElementById('drawBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const screenMain = document.getElementById('screenMain');
+        const screenSub = document.getElementById('screenSub');
+        const actionArea = document.getElementById('actionArea');
+        const mapLink = document.getElementById('mapLink');
 
-        // 滑桿變動時改變文字
+        // 金額顯示文字對照表
+        const priceRanges = [
+            "NT$ 0 - 150",     // Level 1
+            "NT$ 150 - 500",   // Level 2
+            "NT$ 500 - 1500",  // Level 3
+            "NT$ 1500 - 10000+"// Level 4
+        ];
+
+        // 監聽滑桿：更新顯示金額
         budgetInput.addEventListener('input', function() {
-            priceText.textContent = priceLevels[this.value - 1];
+            const level = parseInt(this.value);
+            priceDisplay.textContent = priceRanges[level - 1];
         });
 
-        document.getElementById('drawBtn').addEventListener('click', recommendFood);
-        document.getElementById('retryBtn').addEventListener('click', recommendFood);
+        // 監聽按鈕
+        drawBtn.addEventListener('click', startSlotMachine);
+        retryBtn.addEventListener('click', startSlotMachine);
 
-        // 3. 核心功能：推薦食物
-        function recommendFood() {
-            // 取得使用者選項
+        // --- 3. 拉霸機核心邏輯 ---
+        function startSlotMachine() {
+            // 取得當前篩選條件
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
             const temp = document.querySelector('input[name="temp"]:checked').value;
-            const budget = parseInt(document.getElementById('budget').value);
+            const budgetLevel = parseInt(budgetInput.value);
 
-            // 篩選符合條件的食物
-            // 規則：口味相符 && 溫度相符 && 價格 <= 預算
+            // 篩選食物 (邏輯：價格 <= 選定的預算)
             const candidates = foodDatabase.filter(food => {
                 return food.flavor === flavor && 
                        food.temp === temp && 
-                       food.price <= budget;
+                       food.price <= budgetLevel;
             });
 
-            // DOM 元素
-            const resultArea = document.getElementById('result-area');
-            const nameDisplay = document.getElementById('foodName');
-            const tagsDisplay = document.getElementById('foodTags');
-            const mapLink = document.getElementById('mapLink');
-
-            // 顯示結果區
-            resultArea.style.display = 'block';
-
             if (candidates.length === 0) {
-                nameDisplay.textContent = "沒有符合的...";
-                tagsDisplay.textContent = "試著增加預算，或換個口味？";
-                mapLink.style.display = 'none'; // 隱藏地圖按鈕
-            } else {
-                // 隨機選一個
-                const randomIndex = Math.floor(Math.random() * candidates.length);
-                const choice = candidates[randomIndex];
-
-                // 更新畫面
-                nameDisplay.textContent = choice.name;
-                tagsDisplay.textContent = `${choice.flavor} | ${choice.temp}`;
-                
-                // 更新 Google Map 按鈕連結 (開啟新視窗搜尋)
-                // 使用 "附近 + 食物名" 作為關鍵字
-                mapLink.style.display = 'flex';
-                mapLink.href = `https://www.google.com/maps/search/?api=1&query=附近+${encodeURIComponent(choice.name)}`;
+                screenMain.textContent = "無相符項目";
+                screenSub.textContent = "請調整條件";
+                return;
             }
 
-            // 平滑捲動到結果區
-            resultArea.scrollIntoView({ behavior: 'smooth' });
+            // 狀態重置
+            actionArea.style.display = 'none'; // 隱藏結果按鈕
+            drawBtn.disabled = true;           // 鎖定按鈕防止連點
+            screenMain.classList.remove('winner-effect'); // 移除閃爍
+            screenSub.textContent = "CALCULATING...";
+
+            // 動畫設定
+            let counter = 0;
+            const animationDuration = 3000; // 轉動持續時間 (毫秒) = 3秒
+            const spinIntervalSpeed = 80;   // 文字跳動速度 (毫秒)
+
+            // 開始快速跳動文字 (Spinning effect)
+            const spinInterval = setInterval(() => {
+                const randomTemp = candidates[Math.floor(Math.random() * candidates.length)];
+                screenMain.textContent = randomTemp.name;
+                counter += spinIntervalSpeed;
+            }, spinIntervalSpeed);
+
+            // 時間到，停止並顯示結果
+            setTimeout(() => {
+                clearInterval(spinInterval); // 停止跳動
+                
+                // 選出最終結果
+                const finalChoice = candidates[Math.floor(Math.random() * candidates.length)];
+                
+                // 顯示結果
+                screenMain.textContent = finalChoice.name;
+                screenSub.textContent = `${finalChoice.flavor} | ${finalChoice.temp} | 預算等級:${finalChoice.price}`;
+                
+                // 添加中獎特效
+                screenMain.classList.add('winner-effect');
+                
+                // 解鎖按鈕與顯示地圖連結
+                drawBtn.disabled = false;
+                drawBtn.textContent = "🎰 SPIN AGAIN";
+                actionArea.style.display = 'flex'; // 顯示地圖/重抽按鈕
+                
+                // 設定地圖連結
+                mapLink.href = `http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(finalChoice.name)}`;
+
+            }, animationDuration);
         }
     </script>
 </body>
