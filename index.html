@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>今天吃什麼？(良心譴責版)</title>
+    <title>今天吃什麼？(精準價位版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -261,22 +261,12 @@
 
         .disabled-group { opacity: 0.3; pointer-events: none; }
 
-        /* 訊息 */
+        /* 訊息與特效 */
         .msg-box { height: 2.5rem; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; width: 100%; }
         .msg-text { color: #aaa; font-size: 1rem; font-weight: bold; text-align: center; }
         
-        /* 警語特效 */
-        .warning-text {
-            color: #ff4081; /* 亮粉紅/紅色 */
-            font-size: 1.1rem;
-            animation: pulse 1s infinite alternate;
-        }
-        
-        .jackpot-text {
-            color: #ffeb3b; font-size: 1.4rem;
-            text-shadow: 0 0 10px #ffeb3b, 2px 2px 0 #d32f2f;
-            animation: pulse 0.5s infinite alternate;
-        }
+        .warning-text { color: #ff4081; font-size: 1.1rem; animation: pulse 1s infinite alternate; }
+        .jackpot-text { color: #ffeb3b; font-size: 1.4rem; text-shadow: 0 0 10px #ffeb3b, 2px 2px 0 #d32f2f; animation: pulse 0.5s infinite alternate; }
 
         /* 按鈕 */
         #spinBtn {
@@ -403,9 +393,10 @@
     </div>
 
     <script>
-        // --- 1. 一般食物資料庫 ---
+        // --- 1. 食物資料庫 (大幅擴充 3+ 種/類別) ---
         const foodDatabase = [
-            // Level 1: 50-100 (鹹+熱)
+            // ============ Level 1: 50-100 ============
+            // 鹹+熱
             { name: "滷肉飯+燙青菜", price: 1, flavor: "鹹", temp: "熱" },
             { name: "貢丸湯+乾麵", price: 1, flavor: "鹹", temp: "熱" },
             { name: "水餃 (10顆)", price: 1, flavor: "鹹", temp: "熱" },
@@ -413,52 +404,144 @@
             { name: "炸排骨飯", price: 1, flavor: "鹹", temp: "熱" },
             { name: "鍋貼+酸辣湯", price: 1, flavor: "鹹", temp: "熱" },
             { name: "廣東粥", price: 1, flavor: "鹹", temp: "熱" },
-            // Level 1 (鹹+冷)
+            { name: "蔥抓餅+蛋", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "大腸包小腸", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "豬血湯+米糕", price: 1, flavor: "鹹", temp: "熱" },
+            // 鹹+冷
             { name: "涼麵", price: 1, flavor: "鹹", temp: "冷" },
             { name: "御飯糰", price: 1, flavor: "鹹", temp: "冷" },
-            // Level 1 (甜+熱)
+            { name: "豆皮壽司 (3貫)", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "涼圓 (3顆)", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "超商生菜沙拉", price: 1, flavor: "鹹", temp: "冷" },
+            // 甜+熱
             { name: "紅豆餅", price: 1, flavor: "甜", temp: "熱" },
             { name: "燒仙草", price: 1, flavor: "甜", temp: "熱" },
-            // Level 1 (甜+冷)
+            { name: "熱紅豆湯", price: 1, flavor: "甜", temp: "熱" },
+            { name: "地瓜球", price: 1, flavor: "甜", temp: "熱" },
+            { name: "糖葫蘆", price: 1, flavor: "甜", temp: "熱" },
+            { name: "現烤雞蛋仔", price: 1, flavor: "甜", temp: "熱" },
+            // 甜+冷
             { name: "豆花", price: 1, flavor: "甜", temp: "冷" },
-            
-            // Level 2: 100-200
+            { name: "手搖飲 (微糖)", price: 1, flavor: "甜", temp: "冷" },
+            { name: "超商霜淇淋", price: 1, flavor: "甜", temp: "冷" },
+            { name: "綠豆沙牛奶", price: 1, flavor: "甜", temp: "冷" },
+            { name: "仙草茶", price: 1, flavor: "甜", temp: "冷" },
+            { name: "檸檬愛玉", price: 1, flavor: "甜", temp: "冷" },
+
+            // ============ Level 2: 100-200 ============
+            // 鹹+熱
             { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
             { name: "麥當勞", price: 2, flavor: "鹹", temp: "熱" },
             { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
             { name: "義大利麵", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "摩斯漢堡套餐", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "鬍鬚張滷肉飯餐", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "雲南米干", price: 2, flavor: "鹹", temp: "熱" },
+            // 鹹+冷
             { name: "SUBWAY", price: 2, flavor: "鹹", temp: "冷" },
             { name: "爭鮮壽司", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "凱薩沙拉盆", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "越式法國麵包", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "好市多凱薩沙拉", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "壽司郎 (平價吃)", price: 2, flavor: "鹹", temp: "冷" },
+            // 甜+熱
+            { name: "熱可可+軟餅乾", price: 2, flavor: "甜", temp: "熱" },
+            { name: "剛出爐蛋塔(盒)", price: 2, flavor: "甜", temp: "熱" },
+            { name: "電影院吉拿棒", price: 2, flavor: "甜", temp: "熱" },
+            { name: "日式鯛魚燒", price: 2, flavor: "甜", temp: "熱" },
+            { name: "熱芋圓湯", price: 2, flavor: "甜", temp: "熱" },
+            // 甜+冷
             { name: "剉冰", price: 2, flavor: "甜", temp: "冷" },
-            { name: "蛋糕", price: 2, flavor: "甜", temp: "冷" },
+            { name: "切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
+            { name: "星巴克星冰樂", price: 2, flavor: "甜", temp: "冷" },
+            { name: "芒果冰", price: 2, flavor: "甜", temp: "冷" },
+            { name: "芋頭西米露", price: 2, flavor: "甜", temp: "冷" },
+            { name: "脆皮泡芙", price: 2, flavor: "甜", temp: "冷" },
 
-            // Level 3: 200-500
+            // ============ Level 3: 200-500 ============
+            // 鹹+熱
             { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
             { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
             { name: "瓦城", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "生魚片丼", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "壽喜燒吃到飽", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "春水堂功夫麵", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "Friday's 漢堡", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "鼎泰豐炒飯", price: 3, flavor: "鹹", temp: "熱" },
+            // 鹹+冷
+            { name: "豪華海鮮丼", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "壽司拼盤", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "藏壽司 (吃飽)", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "燻鮭魚沙拉盤", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "日式涼麵套餐", price: 3, flavor: "鹹", temp: "冷" },
+            // 甜+熱
             { name: "舒芙蕾", price: 3, flavor: "甜", temp: "熱" },
+            { name: "現烤布朗尼", price: 3, flavor: "甜", temp: "熱" },
+            { name: "蜜糖吐司", price: 3, flavor: "甜", temp: "熱" },
+            { name: "熱肉桂捲", price: 3, flavor: "甜", temp: "熱" },
+            { name: "法式薄餅", price: 3, flavor: "甜", temp: "熱" },
+            // 甜+冷
             { name: "哈根達斯", price: 3, flavor: "甜", temp: "冷" },
+            { name: "水果千層蛋糕", price: 3, flavor: "甜", temp: "冷" },
+            { name: "Cold Stone", price: 3, flavor: "甜", temp: "冷" },
+            { name: "Godiva 霜淇淋", price: 3, flavor: "甜", temp: "冷" },
+            { name: "高級水果塔", price: 3, flavor: "甜", temp: "冷" },
 
-            // Level 4: 500-1000
+            // ============ Level 4: 500-1000 ============
+            // 鹹+熱
             { name: "西堤牛排", price: 4, flavor: "鹹", temp: "熱" },
             { name: "饗食天堂", price: 4, flavor: "鹹", temp: "熱" },
             { name: "馬辣", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "金色三麥", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "牛角燒肉", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "海底撈", price: 4, flavor: "鹹", temp: "熱" },
+            // 鹹+冷
+            { name: "高級生魚片", price: 4, flavor: "鹹", temp: "冷" },
+            { name: "飯店冷盤Buffet", price: 4, flavor: "鹹", temp: "冷" },
+            { name: "海鮮塔冷盤", price: 4, flavor: "鹹", temp: "冷" },
+            { name: "魚子醬小點", price: 4, flavor: "鹹", temp: "冷" },
+            // 甜+熱
+            { name: "法式現做甜點", price: 4, flavor: "甜", temp: "熱" },
+            { name: "高級巧克力鍋", price: 4, flavor: "甜", temp: "熱" },
+            { name: "Smith&Hsu 司康", price: 4, flavor: "甜", temp: "熱" },
+            // 甜+冷
             { name: "Lady M", price: 4, flavor: "甜", temp: "冷" },
+            { name: "飯店下午茶", price: 4, flavor: "甜", temp: "冷" },
+            { name: "Paul 草莓塔", price: 4, flavor: "甜", temp: "冷" },
 
-            // Level 5: 1000-2000
+            // ============ Level 5: 1000-2000 ============
+            // 鹹+熱
             { name: "王品牛排", price: 5, flavor: "鹹", temp: "熱" },
             { name: "旭集", price: 5, flavor: "鹹", temp: "熱" },
             { name: "茹絲葵", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "教父牛排", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "橘色涮涮屋", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "美福自助餐", price: 5, flavor: "鹹", temp: "熱" },
+            // 鹹+冷
+            { name: "初魚 壽司", price: 5, flavor: "鹹", temp: "冷" },
+            { name: "高級日料冷盤", price: 5, flavor: "鹹", temp: "冷" },
+            { name: "帝王蟹冷盤", price: 5, flavor: "鹹", temp: "冷" },
+            // 甜+熱
+            { name: "五星飯店熱甜點", price: 5, flavor: "甜", temp: "熱" },
+            { name: "現烤舒芙蕾(名店)", price: 5, flavor: "甜", temp: "熱" },
+            // 甜+冷
+            { name: "文華東方下午茶", price: 5, flavor: "甜", temp: "冷" },
+            { name: "W Hotel 下午茶", price: 5, flavor: "甜", temp: "冷" },
+            { name: "SEASON 甜點", price: 5, flavor: "甜", temp: "冷" },
 
-            // Level 6: 2000+ (暴擊)
+            // ============ Level 6: 2000+ (暴擊) ============
             { name: "A5和牛燒肉", price: 6, flavor: "鹹", temp: "熱", costStr: "3000+" },
             { name: "米其林三星中餐", price: 6, flavor: "鹹", temp: "熱", costStr: "4500+" },
+            { name: "Robuchon 法式", price: 6, flavor: "鹹", temp: "熱", costStr: "5000+" },
+            { name: "RAW", price: 6, flavor: "鹹", temp: "熱", costStr: "6000+" },
+            { name: "T+T", price: 6, flavor: "鹹", temp: "熱", costStr: "3500+" },
             { name: "Omakase", price: 6, flavor: "鹹", temp: "冷", costStr: "4000+" },
+            { name: "鮨天本", price: 6, flavor: "鹹", temp: "冷", costStr: "5000+" },
+            { name: "金箔松露巧克力鍋", price: 6, flavor: "甜", temp: "熱", costStr: "2500+" },
             { name: "Pierre Hermé", price: 6, flavor: "甜", temp: "冷", costStr: "2200+" },
+            { name: "CJSJ 特製甜點", price: 6, flavor: "甜", temp: "冷", costStr: "2500+" },
         ];
 
-        // 2. 手搖杯資料庫
+        // 2. 手搖杯資料庫 (擴充)
         const drinkDatabase = [
             { name: "50嵐", price: 1 }, { name: "清心福全", price: 1 },
             { name: "CoCo都可", price: 1 }, { name: "可不可熟成紅茶", price: 1 },
@@ -468,8 +551,15 @@
             { name: "鶴茶樓", price: 1 }, { name: "得正", price: 1 },
             { name: "一沐日", price: 1 }, { name: "珍煮丹", price: 1 },
             { name: "廖老大茶飲", price: 1 }, { name: "約翰紅茶公司", price: 1 },
+            { name: "老賴茶棧", price: 1 }, { name: "茶湯會", price: 1 }, 
+            { name: "大苑子", price: 1 }, { name: "貢茶", price: 1 },
+            
             { name: "再睡5分鐘", price: 2 }, { name: "天仁茗茶", price: 2 },
-            { name: "SOMA 特調", price: 2 }, { name: "春水堂", price: 3 }
+            { name: "SOMA 特調", price: 2 }, { name: "樺達奶茶", price: 2 },
+            { name: "八曜和茶", price: 2 }, { name: "吃茶三千", price: 2 },
+            
+            { name: "春水堂", price: 3 }, { name: "永心鳳茶", price: 3 },
+            { name: "施房茶", price: 3 }
         ];
 
         // 變數
@@ -498,7 +588,6 @@
             coinSlot.style.transform = "scale(0.9)";
             setTimeout(()=> coinSlot.style.transform = "scale(1)", 100);
 
-            // --- 新增：超過500元顯示警語 ---
             if (currentBudget > 500) {
                 msgText.textContent = "吃一餐超過500你不心痛嗎...";
                 msgText.className = "msg-text warning-text";
@@ -572,6 +661,7 @@
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
             const temp = document.querySelector('input[name="temp"]:checked').value;
 
+            // 1. 決定 Level (對應資料庫價格等級)
             let level = 1;
             if (currentBudget >= 2000) level = 6;
             else if (currentBudget >= 1000) level = 5;
@@ -579,29 +669,38 @@
             else if (currentBudget >= 200) level = 3;
             else if (currentBudget >= 100) level = 2;
 
+            // 2. 暴擊判定 (Jackpot)
             let isJackpot = false;
+            // 只有一般食物且預算在 50-2000 之間才有機率暴擊
             if (flavor !== '手搖' && currentBudget >= 50 && currentBudget < 2000) {
                 if (Math.random() < 0.05) isJackpot = true;
             }
 
+            // 3. 篩選名單 (嚴格價位篩選：使用 === level)
             let candidates = [];
+
             if (flavor === '手搖') {
                 let drinkLevel = 1;
                 if (level >= 3) drinkLevel = 3; 
                 else if (level === 2) drinkLevel = 2; 
                 else drinkLevel = 1; 
-                candidates = drinkDatabase.filter(d => d.price <= drinkLevel);
+                
+                // 手搖杯嚴格篩選
+                candidates = drinkDatabase.filter(d => d.price === drinkLevel);
             } else {
                 if (isJackpot) {
                     candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price === 6);
                 } else {
-                    candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price <= level);
+                    // 一般食物嚴格篩選
+                    candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price === level);
                 }
             }
 
+            // 防呆：如果嚴格篩選後沒東西 (雖然資料庫已擴充，但以防萬一)
             if (candidates.length === 0) {
                 if (flavor === '手搖') candidates = drinkDatabase;
                 else {
+                    // 降級搜尋：如果不嚴格篩選也找不到，那就找所有符合口味溫度的
                     candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp);
                     if (candidates.length === 0) candidates = [{name: "無符合項目", price: 0}];
                 }
