@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今天吃什麼？(隨機版)</title>
+    <style>
+        /* --- CSS 樣式區域 --- */
+        body {
+            font-family: 'Microsoft JhengHei', 'Heiti TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff3e0; /* 溫暖的米橘色背景 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            margin-top: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        /* 按鈕選項樣式 (Radio Button 改裝) */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-group input[type="radio"] {
+            display: none; /* 隱藏原本的圓點 */
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #888;
+            font-weight: 500;
+        }
+
+        /* 選中時的樣式 */
+        input[type="radio"]:checked + .btn {
+            background-color: #ff8e8e;
+            color: white;
+            border-color: #ff8e8e;
+            box-shadow: 0 4px 10px rgba(255, 142, 142, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* 滑桿樣式 */
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* 開始按鈕 */
+        #drawBtn {
+            width: 100%;
+            padding: 16px;
+            background-color: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #36b9b0;
+            transition: transform 0.1s;
+            margin-top: 10px;
+        }
+
+        #drawBtn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* 結果顯示區塊 */
+        #result-area {
+            width: 90%;
+            max-width: 420px;
+            margin: 20px 0 50px 0;
+            display: none; /* 預設隱藏 */
+            animation: popUp 0.4s ease-out;
+        }
+
+        @keyframes popUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-top: 6px solid #ff6b6b;
+            position: relative;
+        }
+
+        .result-card h2 {
+            margin: 0;
+            font-size: 1rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .food-name {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+            line-height: 1.3;
+        }
+
+        .food-tags {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .secondary-btn {
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .primary-btn {
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 頁腳 */
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>今天吃什麼？🤔</h1>
+        
+        <div class="group">
+            <label>口味</label>
+            <div class="btn-group">
+                <input type="radio" id="savory" name="flavor" value="鹹" checked>
+                <label for="savory" class="btn">🍜 鹹食</label>
+                
+                <input type="radio" id="sweet" name="flavor" value="甜">
+                <label for="sweet" class="btn">🍰 甜點</label>
+            </div>
+        </div>
+
+        <div class="group">
+            <label>溫度</label>
+            <div class="btn-group">
+                <input type="radio" id="hot" name="temp" value="熱" checked>
+                <label for="hot" class="btn">🔥 熱呼呼</label>
+                
+                <input type="radio" id="cold" name="temp" value="冷">
+                <label for="cold" class="btn">❄️ 透心涼</label>
+            </div>
+        </div>
+
+        <div class="group">
+            <label>預算上限：<span id="priceVal" style="color:#ff6b6b;">便宜 ($)</span></label>
+            <input type="range" id="budget" min="1" max="4" value="1" step="1">
+            <div class="slider-labels">
+                <span>$</span>
+                <span>$$</span>
+                <span>$$$</span>
+                <span>$$$$</span>
+            </div>
+        </div>
+
+        <button id="drawBtn">🎰 幫我決定！</button>
+    </div>
+
+    <div id="result-area">
+        <div class="result-card">
+            <h2>Recommendation</h2>
+            <div id="foodName" class="food-name">???</div>
+            <div id="foodTags" class="food-tags"></div>
+            
+            <div class="action-buttons">
+                <a id="mapLink" href="#" target="_blank" class="primary-btn">
+                    📍 搜尋附近店家
+                </a>
+                <button id="retryBtn" class="secondary-btn">😖 不喜歡，再選一個</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Build with HTML/CSS/JS
+    </footer>
+
+    <script>
+        /* --- JavaScript 邏輯區域 --- */
+
+        // 1. 食物資料庫
+        // 你可以自由新增這裡的項目
+        // price: 1(便宜), 2(平價), 3(稍貴), 4(豪華)
+        const foodDatabase = [
+            // --- 鹹食 + 熱 ---
+            { name: "滷肉飯 + 燙青菜", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "雞肉飯", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "湯包 / 小籠包", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "麻辣燙 / 滷味", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "麥當勞 / 肯德基", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "咖哩飯", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "鐵板燒", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "義大利麵", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "牛排館", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "熱炒店", price: 3, flavor: "鹹", temp: "熱" },
+            
+            // --- 鹹食 + 冷 ---
+            { name: "涼麵 + 味噌湯", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "超商御飯糰", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "SUBWAY 潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "壽司 / 生魚片", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "凱薩沙拉", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "越式生春捲", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "冷滷味", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "韓式冷麵", price: 2, flavor: "鹹", temp: "冷" },
+
+            // --- 甜點 + 熱 ---
+            { name: "車輪餅 / 雞蛋糕", price: 1, flavor: "甜", temp: "熱" },
+            { name: "燒仙草 / 熱豆花", price: 1, flavor: "甜", temp: "熱" },
+            { name: "熱可可 + 軟餅乾", price: 2, flavor: "甜", temp: "熱" },
+            { name: "舒芙蕾鬆餅", price: 3, flavor: "甜", temp: "熱" },
+            { name: "現烤可頌 / 麵包", price: 2, flavor: "甜", temp: "熱" },
+            { name: "芝麻糊 / 杏仁茶", price: 2, flavor: "甜", temp: "熱" },
+            { name: "熱湯圓", price: 1, flavor: "甜", temp: "熱" },
+
+            // --- 甜點 + 冷 ---
+            { name: "手搖飲料 (微糖少冰)", price: 1, flavor: "甜", temp: "冷" },
+            { name: "剉冰 / 雪花冰", price: 2, flavor: "甜", temp: "冷" },
+            { name: "冰豆花", price: 1, flavor: "甜", temp: "冷" },
+            { name: "便利商店霜淇淋", price: 1, flavor: "甜", temp: "冷" },
+            { name: "切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
+            { name: "水果塔", price: 3, flavor: "甜", temp: "冷" },
+            { name: "知名品牌冰淇淋", price: 3, flavor: "甜", temp: "冷" },
+            { name: "豪華下午茶套餐", price: 4, flavor: "甜", temp: "冷" }
+        ];
+
+        // 2. 初始化與事件監聽
+        const budgetInput = document.getElementById('budget');
+        const priceText = document.getElementById('priceVal');
+        const priceLevels = ["便宜 ($)", "平價 ($$)", "中高價 ($$$)", "豪華 ($$$$)"];
+
+        // 滑桿變動時改變文字
+        budgetInput.addEventListener('input', function() {
+            priceText.textContent = priceLevels[this.value - 1];
+        });
+
+        document.getElementById('drawBtn').addEventListener('click', recommendFood);
+        document.getElementById('retryBtn').addEventListener('click', recommendFood);
+
+        // 3. 核心功能：推薦食物
+        function recommendFood() {
+            // 取得使用者選項
+            const flavor = document.querySelector('input[name="flavor"]:checked').value;
+            const temp = document.querySelector('input[name="temp"]:checked').value;
+            const budget = parseInt(document.getElementById('budget').value);
+
+            // 篩選符合條件的食物
+            // 規則：口味相符 && 溫度相符 && 價格 <= 預算
+            const candidates = foodDatabase.filter(food => {
+                return food.flavor === flavor && 
+                       food.temp === temp && 
+                       food.price <= budget;
+            });
+
+            // DOM 元素
+            const resultArea = document.getElementById('result-area');
+            const nameDisplay = document.getElementById('foodName');
+            const tagsDisplay = document.getElementById('foodTags');
+            const mapLink = document.getElementById('mapLink');
+
+            // 顯示結果區
+            resultArea.style.display = 'block';
+
+            if (candidates.length === 0) {
+                nameDisplay.textContent = "沒有符合的...";
+                tagsDisplay.textContent = "試著增加預算，或換個口味？";
+                mapLink.style.display = 'none'; // 隱藏地圖按鈕
+            } else {
+                // 隨機選一個
+                const randomIndex = Math.floor(Math.random() * candidates.length);
+                const choice = candidates[randomIndex];
+
+                // 更新畫面
+                nameDisplay.textContent = choice.name;
+                tagsDisplay.textContent = `${choice.flavor} | ${choice.temp}`;
+                
+                // 更新 Google Map 按鈕連結 (開啟新視窗搜尋)
+                // 使用 "附近 + 食物名" 作為關鍵字
+                mapLink.style.display = 'flex';
+                mapLink.href = `https://www.google.com/maps/search/?api=1&query=附近+${encodeURIComponent(choice.name)}`;
+            }
+
+            // 平滑捲動到結果區
+            resultArea.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
