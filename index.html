@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>今天吃什麼？(手機優化版)</title>
+    <title>今天吃什麼？(手搖杯擴充版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -23,10 +23,10 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            user-select: none; /* 禁止選取文字 */
+            user-select: none;
             -webkit-user-select: none;
             overflow-x: hidden;
-            touch-action: manipulation; /* 優化觸控 */
+            touch-action: manipulation;
         }
 
         /* --- 拉霸機本體 --- */
@@ -42,7 +42,7 @@
             position: relative;
             border: 5px solid #ffd700;
             margin-top: 20px;
-            margin-bottom: 160px; /* 空間給錢包 */
+            margin-bottom: 170px; /* 空間給錢包 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -98,7 +98,7 @@
             border-radius: 10px;
             border: 5px solid #f57f17;
             box-shadow: inset 0 0 30px #000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
             box-sizing: border-box;
             z-index: 5;
@@ -223,17 +223,47 @@
         .slot-label { font-size: 0.5rem; color: #fff; text-align: center; }
         .drag-over { border-color: #ffd700; background: #333; transform: scale(1.1); }
 
-        /* 控制面板 */
-        .control-panel { width: 100%; display: flex; gap: 10px; margin-bottom: 10px; }
+        /* --- 控制面板 (按鈕化) --- */
+        .control-panel { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+        
         .toggle-group {
-            flex: 1; background: #333; padding: 5px; border-radius: 8px; display: flex; border: 1px solid #555;
+            width: 100%;
+            background: #333;
+            padding: 5px;
+            border-radius: 8px;
+            display: flex;
+            border: 1px solid #555;
+            box-sizing: border-box;
         }
+        
         .toggle-btn {
-            flex: 1; padding: 10px 0; text-align: center; cursor: pointer; color: #888;
-            border-radius: 5px; transition: 0.2s; font-size: 1rem; font-weight: bold;
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            cursor: pointer;
+            color: #888;
+            border-radius: 5px;
+            transition: 0.2s;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        input { display: none; }
+        
+        /* 選中樣式 */
         input:checked + .toggle-btn {
-            background: #ffb300; color: #000; box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
+            background: #ffb300;
+            color: #000;
+            box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
+        }
+
+        /* 禁用樣式 (給溫度用) */
+        .disabled-group {
+            opacity: 0.3;
+            pointer-events: none;
         }
 
         /* 訊息 */
@@ -271,7 +301,7 @@
         .wallet-label { color: #f57f17; font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
         .money-items { display: flex; gap: 15px; overflow-x: auto; width: 100%; justify-content: center; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
         .money {
-            cursor: pointer; /* 手機上改為手指 */
+            cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; font-family: 'Righteous', sans-serif;
             box-shadow: 0 4px 6px rgba(0,0,0,0.5); flex-shrink: 0; transition: transform 0.1s;
@@ -287,12 +317,12 @@
         .bill-500 { background: #8d6e63; border: 1px solid #a1887f; }
         .bill-1000 { background: #42a5f5; border: 1px solid #64b5f6; }
 
-        /* 飛幣動畫樣式 */
+        /* 飛幣動畫樣式 (速度調慢至 1.2s) */
         .flying-money {
             position: fixed;
             z-index: 9999;
             pointer-events: none;
-            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1); /* 調整貝茲曲線讓飛行更優雅 */
         }
 
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
@@ -330,14 +360,20 @@
 
         <div class="control-panel">
             <div class="toggle-group">
-                <input type="radio" id="savory" name="flavor" value="鹹" checked>
+                <input type="radio" id="savory" name="flavor" value="鹹" checked onchange="toggleTemp(true)">
                 <label for="savory" class="toggle-btn">🍜 鹹食</label>
-                <input type="radio" id="sweet" name="flavor" value="甜">
+                
+                <input type="radio" id="sweet" name="flavor" value="甜" onchange="toggleTemp(true)">
                 <label for="sweet" class="toggle-btn">🍰 甜點</label>
+                
+                <input type="radio" id="drink" name="flavor" value="手搖" onchange="toggleTemp(false)">
+                <label for="drink" class="toggle-btn">🥤 純手搖</label>
             </div>
-            <div class="toggle-group">
+
+            <div class="toggle-group" id="tempGroup">
                 <input type="radio" id="hot" name="temp" value="熱" checked>
                 <label for="hot" class="toggle-btn">🔥 熱</label>
+                
                 <input type="radio" id="cold" name="temp" value="冷">
                 <label for="cold" class="toggle-btn">❄️ 冷</label>
             </div>
@@ -367,126 +403,86 @@
     </div>
 
     <script>
-        // --- 1. 食物資料庫 ---
+        // --- 資料庫設定 ---
+        
+        // 1. 一般食物 (鹹/甜 + 冷/熱)
         const foodDatabase = [
-            // ============ Level 1: 50-100 (鹹+熱 豐富化) ============
+            // Level 1: 50-100 (鹹+熱)
             { name: "滷肉飯+燙青菜", price: 1, flavor: "鹹", temp: "熱" },
             { name: "貢丸湯+乾麵", price: 1, flavor: "鹹", temp: "熱" },
             { name: "水餃 (10顆)", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "甜不辣/關東煮", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "甜不辣", price: 1, flavor: "鹹", temp: "熱" },
             { name: "炸排骨飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "雞肉飯便當", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "肉絲炒飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "廣東粥/皮蛋瘦肉粥", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "鴨肉飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "米粉湯+黑白切", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "刈包+四神湯", price: 1, flavor: "鹹", temp: "熱" },
             { name: "鍋貼+酸辣湯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "台式蛋包飯", price: 1, flavor: "鹹", temp: "熱" },
-            
-            // 鹹+冷
-            { name: "便利商店涼麵", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "御飯糰 (2顆)", price: 1, flavor: "鹹", temp: "冷" },
-            // 甜+熱
-            { name: "紅豆餅 (3顆)", price: 1, flavor: "甜", temp: "熱" },
-            { name: "熱豆花", price: 1, flavor: "甜", temp: "熱" },
+            { name: "廣東粥", price: 1, flavor: "鹹", temp: "熱" },
+            // Level 1 (鹹+冷)
+            { name: "涼麵", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "御飯糰", price: 1, flavor: "鹹", temp: "冷" },
+            // Level 1 (甜+熱)
+            { name: "紅豆餅", price: 1, flavor: "甜", temp: "熱" },
             { name: "燒仙草", price: 1, flavor: "甜", temp: "熱" },
-            { name: "熱紅豆湯", price: 1, flavor: "甜", temp: "熱" },
-            // 甜+冷
-            { name: "手搖飲 (微糖)", price: 1, flavor: "甜", temp: "冷" },
-            { name: "超商霜淇淋", price: 1, flavor: "甜", temp: "冷" },
-            { name: "冰豆花", price: 1, flavor: "甜", temp: "冷" },
-
-            // ============ Level 2: 100-200 (鹹+熱 豐富化) ============
+            // Level 1 (甜+冷)
+            { name: "豆花", price: 1, flavor: "甜", temp: "冷" },
+            
+            // Level 2: 100-200
             { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "麥當勞套餐", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "個人小火鍋", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "平價義大利麵", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "燒臘三寶飯", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "韓式石鍋拌飯", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "親子丼/牛丼", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "咖哩豬排飯", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "炒燴飯/燴麵", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "海南雞飯", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "鍋燒烏龍麵", price: 2, flavor: "鹹", temp: "熱" },
-
-            // 鹹+冷
+            { name: "麥當勞", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "義大利麵", price: 2, flavor: "鹹", temp: "熱" },
             { name: "SUBWAY", price: 2, flavor: "鹹", temp: "冷" },
             { name: "爭鮮壽司", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "凱薩沙拉盆", price: 2, flavor: "鹹", temp: "冷" },
-            // 甜+熱
-            { name: "熱可可+軟餅乾", price: 2, flavor: "甜", temp: "熱" },
-            { name: "剛出爐蛋塔(盒)", price: 2, flavor: "甜", temp: "熱" },
-            // 甜+冷
-            { name: "精緻切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
-            { name: "大碗剉冰", price: 2, flavor: "甜", temp: "冷" },
-            { name: "星巴克星冰樂", price: 2, flavor: "甜", temp: "冷" },
+            { name: "剉冰", price: 2, flavor: "甜", temp: "冷" },
+            { name: "蛋糕", price: 2, flavor: "甜", temp: "冷" },
 
-            // ============ Level 3: 200-500 (鹹+熱 豐富化) ============
-            { name: "日式拉麵 (豚骨/醬油)", price: 3, flavor: "鹹", temp: "熱" },
+            // Level 3: 200-500
+            { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
             { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "瓦城泰式料理", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "鐵板燒套餐", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "壽喜燒吃到飽", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "薑母鴨/羊肉爐", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "熱炒店 (幾道菜)", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "蒙古烤肉", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "印度咖哩+烤餅", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "砂鍋魚頭", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "瓦城", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "生魚片丼", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "舒芙蕾", price: 3, flavor: "甜", temp: "熱" },
+            { name: "哈根達斯", price: 3, flavor: "甜", temp: "冷" },
 
-            // 鹹+冷
-            { name: "豪華海鮮丼", price: 3, flavor: "鹹", temp: "冷" },
-            { name: "壽司拼盤", price: 3, flavor: "鹹", temp: "冷" },
-            // 甜+熱
-            { name: "舒芙蕾鬆餅", price: 3, flavor: "甜", temp: "熱" },
-            { name: "現烤布朗尼", price: 3, flavor: "甜", temp: "熱" },
-            // 甜+冷
-            { name: "哈根達斯聖代", price: 3, flavor: "甜", temp: "冷" },
-            { name: "水果千層蛋糕", price: 3, flavor: "甜", temp: "冷" },
-
-            // ============ Level 4: 500-1000 (鹹+熱 豐富化) ============
+            // Level 4: 500-1000
             { name: "西堤牛排", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "饗食天堂 (Buffet)", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "馬辣麻辣鍋", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "酸菜白肉鍋", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "單點燒肉", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "居酒屋串燒", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "高級鰻魚飯", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "精緻港式飲茶", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "饗食天堂", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "馬辣", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "Lady M", price: 4, flavor: "甜", temp: "冷" },
 
-            // 鹹+冷
-            { name: "高級生魚片", price: 4, flavor: "鹹", temp: "冷" },
-            { name: "飯店冷盤Buffet", price: 4, flavor: "鹹", temp: "冷" },
-            // 甜+熱
-            { name: "法式現做甜點", price: 4, flavor: "甜", temp: "熱" },
-            { name: "高級巧克力鍋", price: 4, flavor: "甜", temp: "熱" },
-            // 甜+冷
-            { name: "Lady M 千層", price: 4, flavor: "甜", temp: "冷" },
-            { name: "飯店下午茶", price: 4, flavor: "甜", temp: "冷" },
-
-            // ============ Level 5: 1000-2000 (鹹+熱 豐富化) ============
+            // Level 5: 1000-2000
             { name: "王品牛排", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "旭集 / 饗饗", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "旭集", price: 5, flavor: "鹹", temp: "熱" },
             { name: "茹絲葵", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "龍蝦火鍋", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "高級鐵板燒", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "帝王蟹火鍋", price: 5, flavor: "鹹", temp: "熱" },
 
-            // 鹹+冷
-            { name: "初魚 鐵板燒/壽司", price: 5, flavor: "鹹", temp: "冷" },
-            // 甜+熱
-            { name: "五星飯店熱甜點", price: 5, flavor: "甜", temp: "熱" },
-            // 甜+冷
-            { name: "文華東方下午茶", price: 5, flavor: "甜", temp: "冷" },
-
-            // ============ Level 6: 2000+ (暴擊區) ============
+            // Level 6: 2000+ (暴擊)
             { name: "A5和牛燒肉", price: 6, flavor: "鹹", temp: "熱", costStr: "3000+" },
             { name: "米其林三星中餐", price: 6, flavor: "鹹", temp: "熱", costStr: "4500+" },
-            { name: "Robuchon 法式", price: 6, flavor: "鹹", temp: "熱", costStr: "5000+" },
-            { name: "頂級乾式熟成牛排", price: 6, flavor: "鹹", temp: "熱", costStr: "3500+" },
-            { name: "Omakase 無菜單壽司", price: 6, flavor: "鹹", temp: "冷", costStr: "4000+" },
-            { name: "金箔松露巧克力鍋", price: 6, flavor: "甜", temp: "熱", costStr: "2500+" },
-            { name: "Pierre Hermé 塔", price: 6, flavor: "甜", temp: "冷", costStr: "2200+" },
+            { name: "Omakase", price: 6, flavor: "鹹", temp: "冷", costStr: "4000+" },
+            { name: "Pierre Hermé", price: 6, flavor: "甜", temp: "冷", costStr: "2200+" },
+        ];
+
+        // 2. 獨立手搖杯資料庫 (20家)
+        // 價格等級：Level 1 (平價), Level 2 (中高價), Level 3 (貴)
+        const drinkDatabase = [
+            { name: "50嵐", price: 1 },
+            { name: "清心福全", price: 1 },
+            { name: "CoCo都可", price: 1 },
+            { name: "可不可熟成紅茶", price: 1 },
+            { name: "麻古茶坊", price: 1 },
+            { name: "迷客夏", price: 1 },
+            { name: "五桐號", price: 1 },
+            { name: "龜記茗品", price: 1 },
+            { name: "萬波島嶼紅茶", price: 1 },
+            { name: "烏弄", price: 1 },
+            { name: "鶴茶樓", price: 1 },
+            { name: "得正", price: 1 },
+            { name: "一沐日", price: 1 },
+            { name: "珍煮丹", price: 1 },
+            { name: "廖老大茶飲", price: 1 },
+            { name: "約翰紅茶公司", price: 1 },
+            { name: "再睡5分鐘", price: 2 },
+            { name: "天仁茗茶", price: 2 },
+            { name: "SOMA 特調", price: 2 },
+            { name: "春水堂", price: 3 }
         ];
 
         // 變數
@@ -500,32 +496,31 @@
         const actionArea = document.getElementById('actionArea');
         const mapLink = document.getElementById('mapLink');
         const machineBody = document.getElementById('machineBody');
+        const tempGroup = document.getElementById('tempGroup');
         const ITEM_HEIGHT = 150; 
 
-        // --- 核心：錢幣互動邏輯 (整合拖曳與點擊) ---
-        
-        // 1. 處理加錢動畫與邏輯
+        // --- 介面控制：切換手搖時禁用溫度 ---
+        function toggleTemp(enabled) {
+            if (enabled) {
+                tempGroup.classList.remove('disabled-group');
+            } else {
+                tempGroup.classList.add('disabled-group');
+            }
+        }
+
+        // --- 錢幣互動邏輯 (慢速動畫) ---
         function addMoney(amount, startElem) {
-            // 更新餘額
             currentBudget += amount;
             budgetDisplay.textContent = currentBudget;
-            
-            // 飛幣動畫 (如果是點擊觸發)
-            if (startElem) {
-                flyToSlot(startElem);
-            }
-
-            // 投幣孔特效
+            if (startElem) flyToSlot(startElem);
             coinSlot.style.transform = "scale(0.9)";
             setTimeout(()=> coinSlot.style.transform = "scale(1)", 100);
         }
 
-        // 2. 飛幣視覺效果
         function flyToSlot(startElem) {
             const startRect = startElem.getBoundingClientRect();
             const slotRect = coinSlot.getBoundingClientRect();
 
-            // 複製一個錢幣
             const clone = startElem.cloneNode(true);
             clone.className = startElem.className + " flying-money";
             clone.style.left = startRect.left + "px";
@@ -535,52 +530,34 @@
             clone.style.margin = "0";
             document.body.appendChild(clone);
 
-            // 強制重繪以觸發 transition
             void clone.offsetWidth;
 
-            // 設定目標位置 (投幣孔中心)
-            // 調整目標使其稍微縮小並進入孔中
             const targetX = slotRect.left + (slotRect.width / 2) - (startRect.width / 2);
             const targetY = slotRect.top + (slotRect.height / 2) - (startRect.height / 2);
 
             clone.style.transform = `translate(${targetX - startRect.left}px, ${targetY - startRect.top}px) scale(0.5)`;
             clone.style.opacity = "0";
 
-            // 動畫結束後移除
-            setTimeout(() => {
-                clone.remove();
-            }, 500);
+            // 動畫時間配合 CSS 設定 (1.2s)
+            setTimeout(() => { clone.remove(); }, 1200);
         }
 
-        // 3. 綁定事件
-        const moneyItems = document.querySelectorAll('.money');
-        moneyItems.forEach(item => {
+        // 綁定錢幣事件
+        document.querySelectorAll('.money').forEach(item => {
             const val = parseInt(item.getAttribute('data-value'));
-
-            // 支援拖曳 (Desktop)
             item.addEventListener('dragstart', (e) => e.dataTransfer.setData('amount', val));
-
-            // 支援點擊 (Mobile/Desktop)
-            item.addEventListener('click', (e) => {
-                addMoney(val, item);
-            });
+            item.addEventListener('click', () => addMoney(val, item));
         });
 
-        // 拖曳放置區域
-        coinSlot.addEventListener('dragover', (e) => {
-            e.preventDefault(); coinSlot.classList.add('drag-over');
-        });
+        // 拖曳放置
+        coinSlot.addEventListener('dragover', (e) => { e.preventDefault(); coinSlot.classList.add('drag-over'); });
         coinSlot.addEventListener('dragleave', () => coinSlot.classList.remove('drag-over'));
         coinSlot.addEventListener('drop', (e) => {
             e.preventDefault(); coinSlot.classList.remove('drag-over');
             const amount = parseInt(e.dataTransfer.getData('amount'));
-            if(amount) {
-                // 拖曳不需要飛幣動畫，直接加錢
-                addMoney(amount, null); 
-            }
+            if(amount) addMoney(amount, null);
         });
 
-        // 退幣
         document.getElementById('returnCoinBtn').addEventListener('click', () => {
             if(currentBudget > 0) {
                 alert(`退還金額: $${currentBudget}`);
@@ -590,9 +567,9 @@
             }
         });
 
-        // --- 拉霸核心邏輯 ---
+        // --- 拉霸核心 ---
         spinBtn.addEventListener('click', () => {
-            if (currentBudget < 50) { alert("最低消費 $50，請再投幣！"); return; }
+            if (currentBudget < 10) { alert("最低消費 $10，請再投幣！"); return; }
             startSpin();
         });
         document.getElementById('retryBtn').addEventListener('click', startSpin);
@@ -610,6 +587,7 @@
             spinBtn.disabled = true;
 
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
+            // 只有非手搖才需要看溫度
             const temp = document.querySelector('input[name="temp"]:checked').value;
 
             // 1. 決定 Level
@@ -620,31 +598,54 @@
             else if (currentBudget >= 200) level = 3;
             else if (currentBudget >= 100) level = 2;
 
-            // 2. 暴擊判定
+            // 2. 暴擊判定 (手搖杯通常不暴擊到 2000元，除非有特殊設定，這裡暫時只對一般食物暴擊)
             let isJackpot = false;
-            if (currentBudget >= 50 && currentBudget < 2000) {
+            // 只有當不是手搖，且預算在範圍內時才判定暴擊
+            if (flavor !== '手搖' && currentBudget >= 50 && currentBudget < 2000) {
                 if (Math.random() < 0.05) isJackpot = true;
             }
 
             // 3. 篩選名單
-            let candidates;
-            if (isJackpot) {
-                candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp && food.price === 6);
+            let candidates = [];
+
+            if (flavor === '手搖') {
+                // 手搖邏輯：只看價格，不看溫度
+                // 手搖 Level 對應：1(平價), 2(中高), 3(貴)
+                // 轉換主 Level 到手搖 Level
+                let drinkLevel = 1;
+                if (level >= 3) drinkLevel = 3; // 200元以上算貴
+                else if (level === 2) drinkLevel = 2; // 100-200
+                else drinkLevel = 1; // 100以下
+
+                // 篩選：價格 <= drinkLevel 的都列入
+                candidates = drinkDatabase.filter(d => d.price <= drinkLevel);
             } else {
-                candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp && food.price <= level);
+                // 一般食物邏輯
+                if (isJackpot) {
+                    candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price === 6);
+                } else {
+                    candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price <= level);
+                }
             }
 
             // 防呆
             if (candidates.length === 0) {
-                candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp);
-                if (candidates.length === 0) candidates = [{name: "無符合項目", price: 0}];
+                if (flavor === '手搖') candidates = drinkDatabase; // 沒得選就全顯示
+                else {
+                    candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp);
+                    if (candidates.length === 0) candidates = [{name: "無符合項目", price: 0}];
+                }
             }
 
             // 4. 建立 HTML
             const TOTAL_ITEMS = 20;
             let htmlContent = "";
+            
+            // 隨機填充 (如果是手搖，就用手搖庫填充)
+            const dbToUse = (flavor === '手搖') ? drinkDatabase : foodDatabase;
+
             for(let i=0; i<TOTAL_ITEMS-1; i++) {
-                const r = foodDatabase[Math.floor(Math.random() * foodDatabase.length)];
+                const r = dbToUse[Math.floor(Math.random() * dbToUse.length)];
                 htmlContent += `<div class="slot-item">${r.name}</div>`;
             }
             
@@ -694,9 +695,7 @@
 
                 spinBtn.disabled = false;
                 actionArea.style.display = 'flex';
-                
-                // 修復 Map Link: 使用標準 Google Maps 搜尋 URL
-                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(winner.name)}`;
+                mapLink.href = `http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(winner.name)}`;
 
                 if (isJackpot) {
                     msgText.textContent = "✨ 恭喜!!! 您得破費了~ ✨";
