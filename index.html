@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>今天吃什麼？(手搖杯擴充版)</title>
+    <title>今天吃什麼？(良心譴責版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -42,7 +42,7 @@
             position: relative;
             border: 5px solid #ffd700;
             margin-top: 20px;
-            margin-bottom: 170px; /* 空間給錢包 */
+            margin-bottom: 170px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -90,7 +90,7 @@
             font-weight: bold;
         }
 
-        /* --- 視窗與滾動條 --- */
+        /* --- 視窗 --- */
         .window-frame {
             width: 100%;
             background: #000;
@@ -223,7 +223,7 @@
         .slot-label { font-size: 0.5rem; color: #fff; text-align: center; }
         .drag-over { border-color: #ffd700; background: #333; transform: scale(1.1); }
 
-        /* --- 控制面板 (按鈕化) --- */
+        /* 控制面板 */
         .control-panel { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
         
         .toggle-group {
@@ -253,22 +253,25 @@
         
         input { display: none; }
         
-        /* 選中樣式 */
         input:checked + .toggle-btn {
             background: #ffb300;
             color: #000;
             box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
         }
 
-        /* 禁用樣式 (給溫度用) */
-        .disabled-group {
-            opacity: 0.3;
-            pointer-events: none;
-        }
+        .disabled-group { opacity: 0.3; pointer-events: none; }
 
         /* 訊息 */
         .msg-box { height: 2.5rem; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; width: 100%; }
-        .msg-text { color: #aaa; font-size: 1rem; font-weight: bold; }
+        .msg-text { color: #aaa; font-size: 1rem; font-weight: bold; text-align: center; }
+        
+        /* 警語特效 */
+        .warning-text {
+            color: #ff4081; /* 亮粉紅/紅色 */
+            font-size: 1.1rem;
+            animation: pulse 1s infinite alternate;
+        }
+        
         .jackpot-text {
             color: #ffeb3b; font-size: 1.4rem;
             text-shadow: 0 0 10px #ffeb3b, 2px 2px 0 #d32f2f;
@@ -317,12 +320,9 @@
         .bill-500 { background: #8d6e63; border: 1px solid #a1887f; }
         .bill-1000 { background: #42a5f5; border: 1px solid #64b5f6; }
 
-        /* 飛幣動畫樣式 (速度調慢至 1.2s) */
         .flying-money {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
-            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1); /* 調整貝茲曲線讓飛行更優雅 */
+            position: fixed; z-index: 9999; pointer-events: none;
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
@@ -403,9 +403,7 @@
     </div>
 
     <script>
-        // --- 資料庫設定 ---
-        
-        // 1. 一般食物 (鹹/甜 + 冷/熱)
+        // --- 1. 一般食物資料庫 ---
         const foodDatabase = [
             // Level 1: 50-100 (鹹+熱)
             { name: "滷肉飯+燙青菜", price: 1, flavor: "鹹", temp: "熱" },
@@ -460,29 +458,18 @@
             { name: "Pierre Hermé", price: 6, flavor: "甜", temp: "冷", costStr: "2200+" },
         ];
 
-        // 2. 獨立手搖杯資料庫 (20家)
-        // 價格等級：Level 1 (平價), Level 2 (中高價), Level 3 (貴)
+        // 2. 手搖杯資料庫
         const drinkDatabase = [
-            { name: "50嵐", price: 1 },
-            { name: "清心福全", price: 1 },
-            { name: "CoCo都可", price: 1 },
-            { name: "可不可熟成紅茶", price: 1 },
-            { name: "麻古茶坊", price: 1 },
-            { name: "迷客夏", price: 1 },
-            { name: "五桐號", price: 1 },
-            { name: "龜記茗品", price: 1 },
-            { name: "萬波島嶼紅茶", price: 1 },
-            { name: "烏弄", price: 1 },
-            { name: "鶴茶樓", price: 1 },
-            { name: "得正", price: 1 },
-            { name: "一沐日", price: 1 },
-            { name: "珍煮丹", price: 1 },
-            { name: "廖老大茶飲", price: 1 },
-            { name: "約翰紅茶公司", price: 1 },
-            { name: "再睡5分鐘", price: 2 },
-            { name: "天仁茗茶", price: 2 },
-            { name: "SOMA 特調", price: 2 },
-            { name: "春水堂", price: 3 }
+            { name: "50嵐", price: 1 }, { name: "清心福全", price: 1 },
+            { name: "CoCo都可", price: 1 }, { name: "可不可熟成紅茶", price: 1 },
+            { name: "麻古茶坊", price: 1 }, { name: "迷客夏", price: 1 },
+            { name: "五桐號", price: 1 }, { name: "龜記茗品", price: 1 },
+            { name: "萬波島嶼紅茶", price: 1 }, { name: "烏弄", price: 1 },
+            { name: "鶴茶樓", price: 1 }, { name: "得正", price: 1 },
+            { name: "一沐日", price: 1 }, { name: "珍煮丹", price: 1 },
+            { name: "廖老大茶飲", price: 1 }, { name: "約翰紅茶公司", price: 1 },
+            { name: "再睡5分鐘", price: 2 }, { name: "天仁茗茶", price: 2 },
+            { name: "SOMA 特調", price: 2 }, { name: "春水堂", price: 3 }
         ];
 
         // 變數
@@ -499,22 +486,23 @@
         const tempGroup = document.getElementById('tempGroup');
         const ITEM_HEIGHT = 150; 
 
-        // --- 介面控制：切換手搖時禁用溫度 ---
         function toggleTemp(enabled) {
-            if (enabled) {
-                tempGroup.classList.remove('disabled-group');
-            } else {
-                tempGroup.classList.add('disabled-group');
-            }
+            if (enabled) { tempGroup.classList.remove('disabled-group'); }
+            else { tempGroup.classList.add('disabled-group'); }
         }
 
-        // --- 錢幣互動邏輯 (慢速動畫) ---
         function addMoney(amount, startElem) {
             currentBudget += amount;
             budgetDisplay.textContent = currentBudget;
             if (startElem) flyToSlot(startElem);
             coinSlot.style.transform = "scale(0.9)";
             setTimeout(()=> coinSlot.style.transform = "scale(1)", 100);
+
+            // --- 新增：超過500元顯示警語 ---
+            if (currentBudget > 500) {
+                msgText.textContent = "吃一餐超過500你不心痛嗎...";
+                msgText.className = "msg-text warning-text";
+            }
         }
 
         function flyToSlot(startElem) {
@@ -537,19 +525,15 @@
 
             clone.style.transform = `translate(${targetX - startRect.left}px, ${targetY - startRect.top}px) scale(0.5)`;
             clone.style.opacity = "0";
-
-            // 動畫時間配合 CSS 設定 (1.2s)
             setTimeout(() => { clone.remove(); }, 1200);
         }
 
-        // 綁定錢幣事件
         document.querySelectorAll('.money').forEach(item => {
             const val = parseInt(item.getAttribute('data-value'));
             item.addEventListener('dragstart', (e) => e.dataTransfer.setData('amount', val));
             item.addEventListener('click', () => addMoney(val, item));
         });
 
-        // 拖曳放置
         coinSlot.addEventListener('dragover', (e) => { e.preventDefault(); coinSlot.classList.add('drag-over'); });
         coinSlot.addEventListener('dragleave', () => coinSlot.classList.remove('drag-over'));
         coinSlot.addEventListener('drop', (e) => {
@@ -567,7 +551,6 @@
             }
         });
 
-        // --- 拉霸核心 ---
         spinBtn.addEventListener('click', () => {
             if (currentBudget < 10) { alert("最低消費 $10，請再投幣！"); return; }
             startSpin();
@@ -587,10 +570,8 @@
             spinBtn.disabled = true;
 
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
-            // 只有非手搖才需要看溫度
             const temp = document.querySelector('input[name="temp"]:checked').value;
 
-            // 1. 決定 Level
             let level = 1;
             if (currentBudget >= 2000) level = 6;
             else if (currentBudget >= 1000) level = 5;
@@ -598,29 +579,19 @@
             else if (currentBudget >= 200) level = 3;
             else if (currentBudget >= 100) level = 2;
 
-            // 2. 暴擊判定 (手搖杯通常不暴擊到 2000元，除非有特殊設定，這裡暫時只對一般食物暴擊)
             let isJackpot = false;
-            // 只有當不是手搖，且預算在範圍內時才判定暴擊
             if (flavor !== '手搖' && currentBudget >= 50 && currentBudget < 2000) {
                 if (Math.random() < 0.05) isJackpot = true;
             }
 
-            // 3. 篩選名單
             let candidates = [];
-
             if (flavor === '手搖') {
-                // 手搖邏輯：只看價格，不看溫度
-                // 手搖 Level 對應：1(平價), 2(中高), 3(貴)
-                // 轉換主 Level 到手搖 Level
                 let drinkLevel = 1;
-                if (level >= 3) drinkLevel = 3; // 200元以上算貴
-                else if (level === 2) drinkLevel = 2; // 100-200
-                else drinkLevel = 1; // 100以下
-
-                // 篩選：價格 <= drinkLevel 的都列入
+                if (level >= 3) drinkLevel = 3; 
+                else if (level === 2) drinkLevel = 2; 
+                else drinkLevel = 1; 
                 candidates = drinkDatabase.filter(d => d.price <= drinkLevel);
             } else {
-                // 一般食物邏輯
                 if (isJackpot) {
                     candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp && f.price === 6);
                 } else {
@@ -628,20 +599,16 @@
                 }
             }
 
-            // 防呆
             if (candidates.length === 0) {
-                if (flavor === '手搖') candidates = drinkDatabase; // 沒得選就全顯示
+                if (flavor === '手搖') candidates = drinkDatabase;
                 else {
                     candidates = foodDatabase.filter(f => f.flavor === flavor && f.temp === temp);
                     if (candidates.length === 0) candidates = [{name: "無符合項目", price: 0}];
                 }
             }
 
-            // 4. 建立 HTML
             const TOTAL_ITEMS = 20;
             let htmlContent = "";
-            
-            // 隨機填充 (如果是手搖，就用手搖庫填充)
             const dbToUse = (flavor === '手搖') ? drinkDatabase : foodDatabase;
 
             for(let i=0; i<TOTAL_ITEMS-1; i++) {
@@ -653,7 +620,7 @@
             let winnerHtml = "";
             let itemClass = "slot-item";
             
-            if (isJackpot || winner.price === 6) {
+            if (isJackpot || (flavor !== '手搖' && winner.price === 6)) {
                 itemClass += " jackpot-item";
                 let costText = winner.costStr ? `NT$ ${winner.costStr}` : "NT$ 2000+";
                 winnerHtml = `<div class="${itemClass}" id="winnerItem">
@@ -668,7 +635,6 @@
             
             htmlContent += winnerHtml;
 
-            // 5. 執行動畫
             reelStrip.classList.remove('spin-animation');
             reelStrip.style.transform = 'translateY(0px)';
             reelStrip.innerHTML = `<div class="slot-item">...</div>`;
@@ -682,12 +648,11 @@
                 reelStrip.style.transform = `translateY(${targetY}px)`;
             });
 
-            // 6. 結束
             setTimeout(() => {
                 reelStrip.classList.remove('spin-animation');
                 
                 const winnerEl = document.getElementById('winnerItem');
-                if (isJackpot || winner.price === 6) {
+                if (isJackpot || (flavor !== '手搖' && winner.price === 6)) {
                     winnerEl.classList.add('jackpot-effect');
                 } else {
                     winnerEl.classList.add('winner-effect');
