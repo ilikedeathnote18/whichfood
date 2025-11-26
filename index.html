@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>今天吃什麼？(精準價位版)</title>
+    <title>今天吃什麼？(Map修復版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -759,7 +759,7 @@
 
                 spinBtn.disabled = false;
                 actionArea.style.display = 'flex';
-                mapLink.href = `http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(winner.name)}`;
+                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(winner.name)}`;
 
                 if (isJackpot) {
                     msgText.textContent = "✨ 恭喜!!! 您得破費了~ ✨";
