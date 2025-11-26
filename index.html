@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今天吃什麼？(暴擊拉霸版)</title>
+    <title>今天吃什麼？(高清特效版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -25,7 +25,7 @@
             align-items: center;
             min-height: 100vh;
             user-select: none;
-            overflow-x: hidden; /* 防止震動特效超出邊界 */
+            overflow-x: hidden;
         }
 
         /* --- 拉霸機本體 --- */
@@ -41,14 +41,13 @@
             position: relative;
             border: 5px solid #ffd700;
             margin-top: 20px;
-            margin-bottom: 140px; /* 留給錢包區空間 */
+            margin-bottom: 150px; /* 空間給錢包 */
             display: flex;
             flex-direction: column;
             align-items: center;
             transition: transform 0.1s;
         }
 
-        /* 標題 */
         h1 { 
             margin: 0 0 15px 0; 
             color: #ffd700; 
@@ -60,7 +59,7 @@
         /* --- 金額顯示面板 --- */
         .budget-display {
             background: #000;
-            color: #0f0; /* 預設綠色 */
+            color: #0f0;
             font-family: 'Righteous', monospace;
             font-size: 1.8rem;
             padding: 10px 20px;
@@ -88,7 +87,7 @@
             font-weight: bold;
         }
 
-        /* --- 視窗與滾動條 (核心顯示) --- */
+        /* --- 視窗與滾動條 (核心) --- */
         .window-frame {
             width: 100%;
             background: #000;
@@ -102,16 +101,15 @@
             z-index: 10;
         }
         
-        /* 玻璃反光 */
         .window-frame::after { 
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 40%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
             pointer-events: none; z-index: 20;
             border-radius: 5px 5px 0 0;
         }
 
         .reel-container {
-            height: 140px; /* 視窗高度 */
+            height: 150px; /* 視窗高度稍微加大以容納價格 */
             overflow: hidden;
             position: relative;
             background: #fff;
@@ -123,48 +121,89 @@
             width: 100%;
             left: 0;
             transform: translateY(0);
-            /* 使用 Flex 讓內部 .slot-item 排列 */
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
+            /* 關鍵：預設不模糊，只有動的時候加 class */
+            filter: blur(0); 
         }
 
-        /* 食物單項樣式 (嚴格置中) */
+        /* --- 食物單項樣式 (高清化) --- */
         .slot-item {
-            height: 140px; /* 必須嚴格等於 .reel-container 高度 */
+            height: 150px; /* 必須等於 .reel-container 高度 */
             width: 100%;
-            display: flex;           /* Flexbox */
-            align-items: center;     /* 垂直置中 */
-            justify-content: center; /* 水平置中 */
+            display: flex;
+            flex-direction: column; /* 讓價格可以在名字下面 */
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-size: 2.2rem;       /* 字體加大 */
-            font-weight: 900;
-            color: #333;
             border-bottom: 2px solid #ddd;
             background-color: #fafafa;
-            padding: 0 10px;         /* 防止文字貼邊 */
+            padding: 0 10px;
             box-sizing: border-box;
-            line-height: 1.2;        /* 行距調整 */
+            
+            /* 文字設定 */
+            color: #333;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 900; /* 超粗體 */
+            font-size: 2.2rem;
+            line-height: 1.2;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.1); /* 銳利度提升 */
         }
-        .slot-item:nth-child(even) { background-color: #f0f0f0; }
-        
+        .slot-item:nth-child(even) { background-color: #f4f4f4; }
+
         /* 暴擊時的食物樣式 */
         .jackpot-item {
             color: #d32f2f !important;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
-            background: #fff8e1 !important;
+            background: #fffde7 !important;
+            font-size: 2.4rem; /* 更大一點 */
         }
 
-        /* 滾動動畫 Class */
+        /* 暴擊價格標籤 */
+        .price-tag {
+            font-size: 1rem;
+            color: #d32f2f;
+            font-weight: bold;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+            font-family: 'Righteous', monospace; /* 數字用這個字體 */
+            border: 1px solid #ffcdd2;
+        }
+
+        /* --- 動畫特效 --- */
+        
+        /* 滾動時的動態模糊 */
         .spin-animation {
             transition: transform 3s cubic-bezier(0.1, 0.9, 0.2, 1);
-            filter: blur(2px); /* 增加動態模糊 */
+            filter: blur(3px); /* 轉的時候稍微模糊才有速度感 */
+        }
+
+        /* 停止時的鎖定特效 (Pop-in) */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .winner-effect {
+            animation: popIn 0.4s ease-out forwards;
+            z-index: 5;
+            background: white; /* 確保背景蓋過其他的 */
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); /* 發光 */
+            border: 3px solid #ffd700;
+        }
+        .jackpot-effect {
+            animation: popIn 0.5s ease-out forwards;
+            border: 4px solid #d32f2f;
+            box-shadow: 0 0 30px rgba(211, 47, 47, 0.8);
         }
 
         /* --- 投幣孔 --- */
         .coin-slot-area {
             position: absolute;
             right: -25px;
-            top: 180px;
+            top: 200px;
             width: 60px;
             height: 110px;
             background: #222;
@@ -175,7 +214,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 8px 8px 20px rgba(0,0,0,0.6);
-            transition: transform 0.1s;
             z-index: 5;
         }
         .coin-slot-hole {
@@ -187,7 +225,7 @@
             box-shadow: inset 0 0 5px #333;
             margin-bottom: 8px;
         }
-        .slot-label { font-size: 0.6rem; color: #fff; text-align: center; line-height: 1.2; }
+        .slot-label { font-size: 0.6rem; color: #fff; text-align: center; }
         .drag-over { border-color: #ffd700; background: #333; transform: scale(1.1); }
 
         /* --- 控制面板 --- */
@@ -216,8 +254,7 @@
             font-size: 1rem;
             font-weight: bold;
         }
-        input[type="radio"] { display: none; }
-        input[type="radio"]:checked + .toggle-btn {
+        input:checked + .toggle-btn {
             background: #ffb300;
             color: #000;
             box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
@@ -225,19 +262,14 @@
 
         /* --- 訊息顯示區 --- */
         .msg-box {
-            height: 2.5rem; /* 固定高度防止跳動 */
+            height: 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 10px;
             width: 100%;
         }
-        .msg-text {
-            color: #aaa;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        /* 暴擊文字特效 */
+        .msg-text { color: #aaa; font-size: 1rem; font-weight: bold; }
         .jackpot-text {
             color: #ffeb3b;
             font-size: 1.4rem;
@@ -259,18 +291,16 @@
             cursor: pointer;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            transition: all 0.1s;
         }
         #spinBtn:active { transform: translateY(4px); border-bottom-width: 2px; box-shadow: none; }
         #spinBtn:disabled { background: #444; border-bottom-color: #222; color: #777; cursor: not-allowed; }
 
-        /* 結果按鈕 */
         #actionArea { margin-top: 15px; display: none; width: 100%; gap: 10px; }
         .action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; color: white; }
         .map-btn { background: #1976d2; }
         .retry-btn { background: #616161; }
 
-        /* --- 錢包區 (固定底部) --- */
+        /* --- 錢包區 --- */
         .wallet-container {
             position: fixed;
             bottom: 0;
@@ -308,13 +338,11 @@
             font-weight: bold;
             font-family: 'Righteous', sans-serif;
             box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-            flex-shrink: 0; /* 防止縮小 */
+            flex-shrink: 0;
             transition: transform 0.2s;
         }
         .money:hover { transform: translateY(-5px); }
-        .money:active { cursor: grabbing; }
 
-        /* 硬幣鈔票樣式 */
         .coin { border-radius: 50%; border: 2px dashed rgba(255,255,255,0.3); }
         .coin-10 { width: 45px; height: 45px; background: #bdbdbd; color: #333; border: 2px solid #9e9e9e; }
         .coin-50 { width: 55px; height: 55px; background: #ffca28; color: #5d4037; border: 2px solid #fbc02d; }
@@ -323,32 +351,14 @@
         .bill-500 { background: #8d6e63; border: 1px solid #a1887f; }
         .bill-1000 { background: #42a5f5; border: 1px solid #64b5f6; }
 
-        /* --- 暴擊特效 (CSS Animation) --- */
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(1.1); opacity: 1; }
-        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0%, 100% { transform: translate(0, 0) rotate(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -1px) rotate(-1deg); }
+            20%, 40%, 60%, 80% { transform: translate(2px, 1px) rotate(1deg); }
         }
-        .shake-effect {
-            animation: shake 0.5s;
-            animation-iteration-count: infinite;
-        }
-        .golden-border {
-            border-color: #fff !important;
-            box-shadow: 0 0 30px #ffd700, inset 0 0 30px #ffd700 !important;
-        }
+        .shake-effect { animation: shake 0.5s infinite; }
+        .golden-border { border-color: #fff !important; box-shadow: 0 0 30px #ffd700, inset 0 0 30px #ffd700 !important; }
 
     </style>
 </head>
@@ -414,91 +424,52 @@
     </div>
 
     <script>
-        // --- 1. 食物資料庫 (全新價位分級) ---
-        // price Level 定義：
-        // 1: 50-100 (便宜小吃)
-        // 2: 100-200 (一般正餐)
-        // 3: 200-500 (聚餐等級)
-        // 4: 500-1000 (高級)
-        // 5: 1000-2000 (豪華)
-        // 6: 2000以上 (頂級奢華)
-
+        // --- 1. 食物資料庫 (Level 6 加入自訂預估價格字串) ---
         const foodDatabase = [
-            // --- Level 1: 50-100 (鹹熱) ---
+            // Level 1: 50-100
             { name: "滷肉飯+燙青菜", price: 1, flavor: "鹹", temp: "熱" },
             { name: "貢丸湯+乾麵", price: 1, flavor: "鹹", temp: "熱" },
             { name: "水餃 (10顆)", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "鍋貼 + 酸辣湯", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "鍋貼", price: 1, flavor: "鹹", temp: "熱" },
             { name: "大腸麵線", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "肉圓 + 魚丸湯", price: 1, flavor: "鹹", temp: "熱" },
             { name: "甜不辣", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "早餐店蛋餅餐", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "廣東粥", price: 1, flavor: "鹹", temp: "熱" },
 
-            // --- Level 2: 100-200 (鹹熱) ---
+            // Level 2: 100-200
             { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "三寶飯便當", price: 2, flavor: "鹹", temp: "熱" },
             { name: "麥當勞套餐", price: 2, flavor: "鹹", temp: "熱" },
             { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "咖哩豬排飯", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "韓式石鍋拌飯", price: 2, flavor: "鹹", temp: "熱" },
             { name: "平價義大利麵", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "SUBWAY", price: 2, flavor: "鹹", temp: "冷" },
 
-            // --- Level 3: 200-500 (鹹熱) ---
+            // Level 3: 200-500
             { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "連鎖牛排館", price: 3, flavor: "鹹", temp: "熱" },
             { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "壽喜燒吃到飽", price: 3, flavor: "鹹", temp: "熱" },
             { name: "瓦城泰式料理", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "鼎泰豐 (簡單吃)", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "豪華海鮮丼", price: 3, flavor: "鹹", temp: "冷" },
 
-            // --- Level 4: 500-1000 (鹹熱) ---
+            // Level 4: 500-1000
             { name: "西堤牛排", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "饗食天堂 (午餐)", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "饗食天堂", price: 4, flavor: "鹹", temp: "熱" },
             { name: "馬辣麻辣鍋", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "居酒屋單點", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "原燒燒肉", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "高級生魚片", price: 4, flavor: "鹹", temp: "冷" },
 
-            // --- Level 5: 1000-2000 (鹹熱) ---
+            // Level 5: 1000-2000
             { name: "王品牛排", price: 5, flavor: "鹹", temp: "熱" },
             { name: "旭集 / 饗饗", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "茹絲葵 (商業午餐)", price: 5, flavor: "鹹", temp: "熱" },
-            { name: "高檔海鮮火鍋", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "茹絲葵", price: 5, flavor: "鹹", temp: "熱" },
+            { name: "初魚 鐵板燒", price: 5, flavor: "鹹", temp: "冷" },
 
-            // --- Level 6: 2000+ (鹹熱 - 暴擊區) ---
-            { name: "A5和牛燒肉", price: 6, flavor: "鹹", temp: "熱" },
-            { name: "米其林三星中餐", price: 6, flavor: "鹹", temp: "熱" },
-            { name: "Robuchon 法式餐廳", price: 6, flavor: "鹹", temp: "熱" },
-            { name: "頂級乾式熟成牛排", price: 6, flavor: "鹹", temp: "熱" },
-
-            // --- (以下補齊冷食與甜點，簡化以確保各價位有東西) ---
-            
-            // 鹹+冷
-            { name: "便利商店涼麵", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "SUBWAY 潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "豪華海鮮丼", price: 3, flavor: "鹹", temp: "冷" },
-            { name: "高級生魚片拼盤", price: 4, flavor: "鹹", temp: "冷" },
-            { name: "初魚 鐵板燒/壽司", price: 5, flavor: "鹹", temp: "冷" },
-            { name: "Omakase 無菜單壽司", price: 6, flavor: "鹹", temp: "冷" }, // 暴擊
-
-            // 甜+熱
-            { name: "紅豆餅 (3顆)", price: 1, flavor: "甜", temp: "熱" },
-            { name: "熱可可+蛋糕", price: 2, flavor: "甜", temp: "熱" },
-            { name: "舒芙蕾鬆餅", price: 3, flavor: "甜", temp: "熱" },
-            { name: "法式現做甜點", price: 4, flavor: "甜", temp: "熱" },
-            { name: "五星飯店熱甜點", price: 5, flavor: "甜", temp: "熱" },
-            { name: "金箔松露巧克力鍋", price: 6, flavor: "甜", temp: "熱" }, // 暴擊
-
-            // 甜+冷
-            { name: "手搖飲", price: 1, flavor: "甜", temp: "冷" },
-            { name: "精緻切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
-            { name: "哈根達斯聖代", price: 3, flavor: "甜", temp: "冷" },
-            { name: "Lady M 千層", price: 4, flavor: "甜", temp: "冷" },
-            { name: "文華東方下午茶", price: 5, flavor: "甜", temp: "冷" },
-            { name: "Pierre Hermé 馬卡龍塔", price: 6, flavor: "甜", temp: "冷" }, // 暴擊
+            // Level 6: 2000+ (暴擊區) - 加入 costStr
+            { name: "A5和牛燒肉", price: 6, flavor: "鹹", temp: "熱", costStr: "3000+" },
+            { name: "米其林三星中餐", price: 6, flavor: "鹹", temp: "熱", costStr: "4500+" },
+            { name: "Robuchon 法式", price: 6, flavor: "鹹", temp: "熱", costStr: "5000+" },
+            { name: "頂級乾式熟成牛排", price: 6, flavor: "鹹", temp: "熱", costStr: "3500+" },
+            { name: "Omakase 無菜單壽司", price: 6, flavor: "鹹", temp: "冷", costStr: "4000+" },
+            { name: "金箔松露巧克力鍋", price: 6, flavor: "甜", temp: "熱", costStr: "2500+" },
+            { name: "Pierre Hermé 塔", price: 6, flavor: "甜", temp: "冷", costStr: "2200+" },
         ];
 
-        // --- 變數與初始化 ---
+        // 變數
         let currentBudget = 0;
         const budgetDisplay = document.getElementById('budgetDisplay');
         const budgetBox = document.getElementById('budgetBox');
@@ -509,30 +480,23 @@
         const actionArea = document.getElementById('actionArea');
         const mapLink = document.getElementById('mapLink');
         const machineBody = document.getElementById('machineBody');
-        
-        const ITEM_HEIGHT = 140; // 必須與 CSS .slot-item height 一致
+        const ITEM_HEIGHT = 150; // 與 CSS 一致
 
-        // --- 拖曳功能 ---
+        // 拖曳功能
         const moneyItems = document.querySelectorAll('.money');
         moneyItems.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('amount', item.getAttribute('data-value'));
-            });
+            item.addEventListener('dragstart', (e) => e.dataTransfer.setData('amount', item.getAttribute('data-value')));
         });
-
         coinSlot.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            coinSlot.classList.add('drag-over');
+            e.preventDefault(); coinSlot.classList.add('drag-over');
         });
         coinSlot.addEventListener('dragleave', () => coinSlot.classList.remove('drag-over'));
         coinSlot.addEventListener('drop', (e) => {
-            e.preventDefault();
-            coinSlot.classList.remove('drag-over');
+            e.preventDefault(); coinSlot.classList.remove('drag-over');
             const amount = parseInt(e.dataTransfer.getData('amount'));
             if(amount) {
                 currentBudget += amount;
-                updateBudgetUI();
-                // 投幣動畫
+                budgetDisplay.textContent = currentBudget;
                 coinSlot.style.transform = "scale(0.9)";
                 setTimeout(()=> coinSlot.style.transform = "scale(1)", 100);
             }
@@ -542,21 +506,13 @@
             if(currentBudget > 0) {
                 alert(`退還金額: $${currentBudget}`);
                 currentBudget = 0;
-                updateBudgetUI();
+                budgetDisplay.textContent = 0;
                 resetEffects();
             }
         });
 
-        function updateBudgetUI() {
-            budgetDisplay.textContent = currentBudget;
-        }
-
-        // --- 拉霸核心邏輯 ---
         spinBtn.addEventListener('click', () => {
-            if (currentBudget < 50) {
-                alert("最低消費 $50，請再投幣！");
-                return;
-            }
+            if (currentBudget < 50) { alert("最低消費 $50，請再投幣！"); return; }
             startSpin();
         });
         document.getElementById('retryBtn').addEventListener('click', startSpin);
@@ -565,7 +521,7 @@
             machineBody.classList.remove('shake-effect', 'golden-border');
             budgetBox.style.color = '#0f0';
             msgText.innerHTML = ""; 
-            msgText.className = "msg-text"; // 移除 jackpot class
+            msgText.className = "msg-text";
         }
 
         function startSpin() {
@@ -576,63 +532,67 @@
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
             const temp = document.querySelector('input[name="temp"]:checked').value;
 
-            // 1. 計算正常 Level
+            // 1. 決定 Level
             let level = 1;
             if (currentBudget >= 2000) level = 6;
             else if (currentBudget >= 1000) level = 5;
             else if (currentBudget >= 500) level = 4;
             else if (currentBudget >= 200) level = 3;
             else if (currentBudget >= 100) level = 2;
-            else level = 1;
 
-            // 2. 判定暴擊 (5% 機率)
-            // 條件：預算介於 50 ~ 2000 之間 (2000以上本來就是最高級，不用暴擊)
+            // 2. 暴擊判定 (5% 機率，且預算在 50-2000 之間)
             let isJackpot = false;
             if (currentBudget >= 50 && currentBudget < 2000) {
-                if (Math.random() < 0.05) { // 5% 機率
-                    isJackpot = true;
-                }
+                if (Math.random() < 0.05) isJackpot = true;
             }
 
             // 3. 篩選名單
             let candidates;
             if (isJackpot) {
-                // 強制鎖定 Level 6 (2000+)
-                candidates = foodDatabase.filter(food => 
-                    food.flavor === flavor && food.temp === temp && food.price === 6
-                );
+                candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp && food.price === 6);
             } else {
-                // 正常篩選：價格 <= level
-                candidates = foodDatabase.filter(food => 
-                    food.flavor === flavor && food.temp === temp && food.price <= level
-                );
+                candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp && food.price <= level);
             }
 
-            // 防呆補償
+            // 防呆
             if (candidates.length === 0) {
-                // 萬一篩不到 (例如 level 6 的甜熱食可能很少)，就找任意價位符合口味溫度的
                 candidates = foodDatabase.filter(food => food.flavor === flavor && food.temp === temp);
                 if (candidates.length === 0) candidates = [{name: "無符合項目", price: 0}];
             }
 
-            // 4. 建立滾動條 HTML
+            // 4. 建立 HTML
             const TOTAL_ITEMS = 20;
             let htmlContent = "";
             
-            // 隨機填充
+            // 隨機填充前面的項目 (只顯示名字)
             for(let i=0; i<TOTAL_ITEMS-1; i++) {
-                const r = foodDatabase[Math.floor(Math.random() * foodDatabase.length)]; // 隨機拿任何食物來跑
+                const r = foodDatabase[Math.floor(Math.random() * foodDatabase.length)];
                 htmlContent += `<div class="slot-item">${r.name}</div>`;
             }
             
-            // 贏家
+            // 贏家 (如果是暴擊，加入價格顯示)
             const winner = candidates[Math.floor(Math.random() * candidates.length)];
+            let winnerHtml = "";
+            let itemClass = "slot-item";
             
-            // 如果是暴擊，贏家文字要特別樣式
-            const winnerClass = isJackpot ? 'slot-item jackpot-item' : 'slot-item';
-            htmlContent += `<div class="${winnerClass}">${winner.name}</div>`;
+            if (isJackpot || winner.price === 6) {
+                itemClass += " jackpot-item";
+                // 顯示預計花費
+                let costText = winner.costStr ? `NT$ ${winner.costStr}` : "NT$ 2000+";
+                winnerHtml = `<div class="${itemClass}" id="winnerItem">
+                                <div>${winner.name}</div>
+                                <div class="price-tag">預計花費: ${costText}</div>
+                              </div>`;
+            } else {
+                // 一般食物，單純顯示名字
+                winnerHtml = `<div class="${itemClass}" id="winnerItem">
+                                <div>${winner.name}</div>
+                              </div>`;
+            }
+            
+            htmlContent += winnerHtml;
 
-            // 5. 執行轉動
+            // 5. 執行動畫
             reelStrip.classList.remove('spin-animation');
             reelStrip.style.transform = 'translateY(0px)';
             reelStrip.innerHTML = `<div class="slot-item">...</div>`;
@@ -646,18 +606,27 @@
                 reelStrip.style.transform = `translateY(${targetY}px)`;
             });
 
-            // 6. 結束 (3秒後)
+            // 6. 結束處理
             setTimeout(() => {
+                reelStrip.classList.remove('spin-animation'); // 移除模糊
+                
+                // 觸發贏家特效 (Pop-in)
+                const winnerEl = document.getElementById('winnerItem');
+                if (isJackpot || winner.price === 6) {
+                    winnerEl.classList.add('jackpot-effect');
+                } else {
+                    winnerEl.classList.add('winner-effect');
+                }
+
                 spinBtn.disabled = false;
                 actionArea.style.display = 'flex';
                 mapLink.href = `http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(winner.name)}`;
 
-                // 處理暴擊特效
                 if (isJackpot) {
                     msgText.textContent = "✨ 恭喜!!! 您得破費了~ ✨";
                     msgText.className = "msg-text jackpot-text";
                     machineBody.classList.add('shake-effect', 'golden-border');
-                    budgetBox.style.color = '#ffd700'; // 讓金額變金色
+                    budgetBox.style.color = '#ffd700';
                 } 
 
             }, 3000);
