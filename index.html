@@ -3,410 +3,488 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今天吃什麼？(拉霸機版)</title>
+    <title>今天吃什麼？(復古拉霸機版)</title>
     <style>
-        /* --- CSS 樣式區域 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+TC:wght@500;900&display=swap');
+
+        /* --- 全局設定 --- */
         body {
-            font-family: 'Microsoft JhengHei', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #2b2b2b; /* 改成深色背景，突顯機台 */
-            color: #333;
+            background-color: #1a1a1a;
+            background-image: radial-gradient(circle, #333 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
         }
 
-        .container {
+        /* --- 拉霸機本體 --- */
+        .slot-machine {
             width: 90%;
-            max-width: 450px;
-            margin-top: 30px;
-            padding: 25px;
-            background: #f4f4f4;
-            border-radius: 20px;
-            /* 機台立體感 */
+            max-width: 480px;
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            border-radius: 30px;
+            padding: 20px;
             box-shadow: 
-                inset 0 0 20px rgba(255,255,255,0.5),
-                0 10px 30px rgba(0,0,0,0.5);
-            border: 8px solid #444;
+                0 0 0 10px #8e0000, /* 外框 */
+                0 20px 50px rgba(0,0,0,0.8), /* 陰影 */
+                inset 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+            border: 5px solid #ffd700; /* 金邊 */
         }
+
+        /* 裝飾燈泡 (頂部) */
+        .lights-top {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+        .bulb {
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff;
+            animation: blink 1s infinite alternate;
+        }
+        .bulb:nth-child(even) { animation-delay: 0.5s; }
 
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            text-transform: uppercase;
+            font-family: 'Righteous', cursive;
+            color: #ffeb3b;
+            text-shadow: 2px 2px 0 #b71c1c, 0 0 15px #ffeb3b;
+            margin: 0 0 20px 0;
+            font-size: 2rem;
             letter-spacing: 2px;
-            border-bottom: 2px dashed #aaa;
-            padding-bottom: 10px;
         }
 
-        .group {
+        /* --- 選項控制區 (面板) --- */
+        .control-panel {
+            background: #333;
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid #555;
             margin-bottom: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
+        .group { margin-bottom: 15px; }
+        
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 1rem;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* --- 選項按鈕樣式 --- */
-        .btn-group { display: flex; gap: 10px; }
-        .btn-group input[type="radio"] { display: none; }
-        
+        /* 按鈕樣式 */
+        .btn-group { display: flex; gap: 8px; }
+        .btn-group input { display: none; }
         .btn {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
+            padding: 8px;
+            background: #444;
+            border: 2px solid #222;
+            border-radius: 5px;
             text-align: center;
             cursor: pointer;
+            color: #888;
             transition: 0.2s;
-            background: #e8e8e8;
-            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        input:checked + .btn {
+            background: #ff9800;
+            color: #fff;
+            border-color: #e65100;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px #ff9800;
         }
 
-        input[type="radio"]:checked + .btn {
-            background-color: #ffcc00; /* 黃色亮燈感 */
-            color: #333;
-            border-color: #ffaa00;
-            box-shadow: 0 0 10px #ffcc00;
-            transform: scale(1.02);
-        }
-
-        /* --- 優化後的金額滑桿 --- */
-        .budget-container {
-            background: #ddd;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-        }
-
+        /* 滑桿樣式 */
         input[type="range"] {
             width: 100%;
             height: 10px;
-            background: #888;
+            background: #222;
             border-radius: 5px;
             outline: none;
             -webkit-appearance: none;
-            margin: 15px 0;
+            border: 1px solid #555;
         }
-
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #ff4757;
+            background: #ffeb3b;
+            border: 2px solid #f57f17;
             cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
         }
-        
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
         .price-display {
-            text-align: center;
-            font-size: 1.3rem;
+            text-align: right;
+            color: #ffeb3b;
             font-weight: bold;
-            color: #d63031;
-            margin-top: 5px;
+            font-family: 'Righteous', monospace;
+            font-size: 1.1rem;
         }
 
-        /* --- 拉霸機螢幕 --- */
-        .slot-machine-screen {
-            background-color: #000;
-            border: 5px solid #666;
+        /* --- 核心: 滾動視窗 (Window) --- */
+        .window-frame {
+            background: #000;
+            padding: 10px;
             border-radius: 10px;
-            height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
+            border: 4px solid #f57f17; /* 金框 */
             box-shadow: inset 0 0 20px #000;
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        /* 螢幕反光效果 */
-        .slot-machine-screen::before {
-            content: '';
+        /* 玻璃反光遮罩 */
+        .window-frame::after {
+            content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; height: 50%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
+            z-index: 5;
         }
 
-        .screen-text {
-            color: #00ff00; /* 復古綠色螢幕字 */
-            font-family: 'Courier New', monospace; /* 等寬字體更有數位感 */
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 0 10px;
-            text-shadow: 0 0 5px #00ff00;
+        .reel-container {
+            height: 100px; /* 視窗高度 */
+            overflow: hidden; /* 隱藏超出部分 */
+            position: relative;
+            background: white;
+            border-radius: 5px;
         }
 
-        .screen-subtext {
-            color: #00cc00;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            opacity: 0.8;
+        /* 滾動長條 (Strip) */
+        .reel-strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            /* 初始位置 */
+            transform: translateY(0); 
         }
 
-        /* 中獎閃爍特效 */
-        @keyframes blink {
-            0% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
-            50% { color: #fff; text-shadow: 0 0 20px #fff; }
-            100% { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
-        }
-        .winner-effect {
-            animation: blink 0.5s infinite;
+        /* 滾動動畫 class */
+        .is-spinning {
+            transition: transform 3s cubic-bezier(0.1, 0.9, 0.2, 1); /* 緩出效果，模擬物理摩擦力 */
+            /* 加上動態模糊效果增加速度感 */
+            filter: blur(1px); 
         }
 
-        /* --- 拉霸手把按鈕 --- */
-        #drawBtn {
+        .is-stopped {
+            transition: none;
+            filter: blur(0);
+        }
+
+        /* 單個食物格子 */
+        .slot-item {
+            height: 100px; /* 必須跟視窗高度一樣 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        /* 偶數格顏色微調，增加條紋感 */
+        .slot-item:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* --- 拉桿按鈕 --- */
+        #spinBtn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(to bottom, #ff4757, #c0392b);
-            color: white;
-            border: none;
-            border-radius: 50px; /* 圓潤按鈕 */
             font-size: 1.5rem;
-            font-weight: bold;
+            font-family: 'Righteous', cursive;
+            color: white;
+            background: linear-gradient(to bottom, #ff5252, #b71c1c);
+            border: none;
+            border-radius: 50px;
+            border-bottom: 8px solid #7f0000;
             cursor: pointer;
-            box-shadow: 0 6px 0 #802620, 0 15px 20px rgba(0,0,0,0.2);
-            transition: all 0.1s;
-            text-transform: uppercase;
+            transition: 0.1s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        #drawBtn:active {
-            transform: translateY(6px);
-            box-shadow: 0 0 0 #802620, inset 0 5px 10px rgba(0,0,0,0.2);
+        #spinBtn:active {
+            transform: translateY(5px);
+            border-bottom-width: 3px;
+            box-shadow: none;
         }
         
-        #drawBtn:disabled {
-            background: #999;
-            box-shadow: none;
+        #spinBtn:disabled {
+            background: #555;
+            border-bottom-color: #333;
             cursor: not-allowed;
-            transform: translateY(6px);
+            color: #888;
         }
 
-        /* --- 結果操作按鈕區 --- */
+        /* --- 結果操作區 --- */
         .action-area {
-            display: none; /* 預設隱藏，抽完才顯示 */
             margin-top: 15px;
+            display: none;
             gap: 10px;
-            flex-direction: column;
         }
-
-        .map-btn {
-            background: #3498db;
-            color: white;
-            padding: 12px;
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
             border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
             text-decoration: none;
             text-align: center;
-            font-weight: bold;
-            display: block;
+            font-size: 0.9rem;
         }
-        
-        .retry-btn {
-            background: #95a5a6;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .map-btn { background: #2196f3; color: white; }
+        .retry-btn { background: #757575; color: white; }
 
+        @keyframes blink {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🍱 FOOD SLOT 🎰</h1>
-        
-        <div class="group">
-            <label>口味</label>
-            <div class="btn-group">
-                <input type="radio" id="savory" name="flavor" value="鹹" checked>
-                <label for="savory" class="btn">🍜 鹹食</label>
-                
-                <input type="radio" id="sweet" name="flavor" value="甜">
-                <label for="sweet" class="btn">🍰 甜點</label>
+    <div class="slot-machine">
+        <div class="lights-top">
+            <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+        </div>
+
+        <h1>WHAT TO EAT</h1>
+
+        <div class="window-frame">
+            <div class="reel-container">
+                <div id="reelStrip" class="reel-strip">
+                    <div class="slot-item">準備開吃</div>
+                </div>
             </div>
         </div>
 
-        <div class="group">
-            <label>溫度</label>
-            <div class="btn-group">
-                <input type="radio" id="hot" name="temp" value="熱" checked>
-                <label for="hot" class="btn">🔥 熱呼呼</label>
-                
-                <input type="radio" id="cold" name="temp" value="冷">
-                <label for="cold" class="btn">❄️ 透心涼</label>
+        <div class="control-panel">
+            <div class="group">
+                <div class="btn-group">
+                    <input type="radio" id="savory" name="flavor" value="鹹" checked>
+                    <label for="savory" class="btn">🍜 鹹食</label>
+                    <input type="radio" id="sweet" name="flavor" value="甜">
+                    <label for="sweet" class="btn">🍰 甜點</label>
+                </div>
             </div>
-        </div>
-
-        <div class="group">
-            <label>預算限制</label>
-            <div class="budget-container">
-                <div id="priceDisplay" class="price-display">NT$ 0 - 150</div>
+            <div class="group">
+                <div class="btn-group">
+                    <input type="radio" id="hot" name="temp" value="熱" checked>
+                    <label for="hot" class="btn">🔥 熱呼呼</label>
+                    <input type="radio" id="cold" name="temp" value="冷">
+                    <label for="cold" class="btn">❄️ 透心涼</label>
+                </div>
+            </div>
+            <div class="group">
+                <label>預算 Budget</label>
+                <div class="price-display" id="priceDisplay">NT$ 0 - 150</div>
                 <input type="range" id="budget" min="1" max="4" value="1" step="1">
             </div>
         </div>
 
-        <div class="slot-machine-screen">
-            <div id="screenMain" class="screen-text">READY?</div>
-            <div id="screenSub" class="screen-subtext">請按下方按鈕</div>
-        </div>
-
-        <button id="drawBtn">🎰 SPIN !</button>
+        <button id="spinBtn">🎰 SPIN</button>
 
         <div id="actionArea" class="action-area">
-            <a id="mapLink" href="#" target="_blank" class="map-btn">📍 用 Google 地圖找這項</a>
-            <button id="retryBtn" class="retry-btn">😖 不喜歡，再轉一次</button>
+            <a id="mapLink" href="#" target="_blank" class="action-btn map-btn">📍 Google Map</a>
+            <button id="retryBtn" class="action-btn retry-btn">再轉一次</button>
         </div>
     </div>
 
     <script>
-        // --- 1. 食物資料庫 ---
-        // price 對應: 1(平價), 2(一般), 3(大餐), 4(豪華)
+        /* --- 1. 大幅擴充的食物資料庫 (特別是 0-150元) --- */
         const foodDatabase = [
-            // 鹹 + 熱
-            { name: "滷肉飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "雞肉飯", price: 1, flavor: "鹹", temp: "熱" },
-            { name: "麥當勞", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "小火鍋", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
-            { name: "日式拉麵", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "鐵板燒", price: 3, flavor: "鹹", temp: "熱" },
-            { name: "王品牛排", price: 4, flavor: "鹹", temp: "熱" },
-            { name: "高級麻辣鍋", price: 4, flavor: "鹹", temp: "熱" },
+            // --- 鹹 + 熱 (平價王者) ---
+            { name: "滷肉飯+燙青菜", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "雞肉飯便當", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "古早味陽春麵", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "麻醬麵+蛋花湯", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "八方雲集/鍋貼", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "高麗菜水餃", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "甜不辣/關東煮", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "彰化肉圓", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "大腸蚵仔麵線", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "台式臭豆腐", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "廣東粥/皮蛋瘦肉粥", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "潤餅 (春捲)", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "刈包 (虎咬豬)", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "早餐店蛋餅+蘿蔔糕", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "排骨飯便當", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "米粉湯+黑白切", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "鴨肉飯", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "便利商店微波食品", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "酸辣湯餃", price: 1, flavor: "鹹", temp: "熱" },
+            { name: "鐵板麵 (蘑菇/黑胡椒)", price: 1, flavor: "鹹", temp: "熱" },
             
-            // 鹹 + 冷
-            { name: "涼麵", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "御飯糰", price: 1, flavor: "鹹", temp: "冷" },
-            { name: "潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
-            { name: "壽司拼盤", price: 3, flavor: "鹹", temp: "冷" },
-            { name: "生魚片丼飯", price: 3, flavor: "鹹", temp: "冷" },
-            { name: "Omakase (無菜單壽司)", price: 4, flavor: "鹹", temp: "冷" },
+            // --- 鹹 + 熱 (中高價位) ---
+            { name: "牛肉麵", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "個人小火鍋", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "麥當勞/肯德基", price: 2, flavor: "鹹", temp: "熱" },
+            { name: "日式豚骨拉麵", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "韓式炸雞", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "義大利麵", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "鐵板燒套餐", price: 3, flavor: "鹹", temp: "熱" },
+            { name: "王品牛排", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "麻辣鍋吃到飽", price: 4, flavor: "鹹", temp: "熱" },
+            { name: "鼎泰豐", price: 4, flavor: "鹹", temp: "熱" },
 
-            // 甜 + 熱
-            { name: "紅豆餅", price: 1, flavor: "甜", temp: "熱" },
+            // --- 鹹 + 冷 ---
+            { name: "便利商店涼麵", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "御飯糰/手卷", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "營養三明治", price: 1, flavor: "鹹", temp: "冷" },
+            { name: "SUBWAY 潛艇堡", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "凱薩沙拉盆", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "越式生春捲", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "冷滷味", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "爭鮮壽司", price: 2, flavor: "鹹", temp: "冷" },
+            { name: "豪華生魚片丼飯", price: 3, flavor: "鹹", temp: "冷" },
+            { name: "Omakase 無菜單壽司", price: 4, flavor: "鹹", temp: "冷" },
+
+            // --- 甜 + 熱 ---
+            { name: "紅豆餅/車輪餅", price: 1, flavor: "甜", temp: "熱" },
+            { name: "古早味雞蛋糕", price: 1, flavor: "甜", temp: "熱" },
+            { name: "夜市地瓜球", price: 1, flavor: "甜", temp: "熱" },
             { name: "燒仙草", price: 1, flavor: "甜", temp: "熱" },
-            { name: "熱可可", price: 2, flavor: "甜", temp: "熱" },
+            { name: "熱豆花 (加薑汁)", price: 1, flavor: "甜", temp: "熱" },
+            { name: "紅豆湯/花生湯", price: 1, flavor: "甜", temp: "熱" },
+            { name: "熱可可+軟餅乾", price: 2, flavor: "甜", temp: "熱" },
+            { name: "剛出爐蛋塔", price: 2, flavor: "甜", temp: "熱" },
             { name: "舒芙蕾鬆餅", price: 3, flavor: "甜", temp: "熱" },
             { name: "現烤布朗尼", price: 3, flavor: "甜", temp: "熱" },
 
-            // 甜 + 冷
-            { name: "手搖飲", price: 1, flavor: "甜", temp: "冷" },
+            // --- 甜 + 冷 ---
+            { name: "手搖飲 (半糖少冰)", price: 1, flavor: "甜", temp: "冷" },
+            { name: "古早味冰豆花", price: 1, flavor: "甜", temp: "冷" },
+            { name: "仙草蜜/愛玉冰", price: 1, flavor: "甜", temp: "冷" },
+            { name: "綠豆湯/薏仁湯", price: 1, flavor: "甜", temp: "冷" },
             { name: "便利商店霜淇淋", price: 1, flavor: "甜", temp: "冷" },
-            { name: "剉冰", price: 2, flavor: "甜", temp: "冷" },
-            { name: "切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
-            { name: "哈根達斯", price: 3, flavor: "甜", temp: "冷" },
+            { name: "泡芙", price: 1, flavor: "甜", temp: "冷" },
+            { name: "剉冰/雪花冰", price: 2, flavor: "甜", temp: "冷" },
+            { name: "精緻切片蛋糕", price: 2, flavor: "甜", temp: "冷" },
+            { name: "哈根達斯聖代", price: 3, flavor: "甜", temp: "冷" },
             { name: "五星飯店下午茶", price: 4, flavor: "甜", temp: "冷" }
         ];
 
-        // --- 2. 變數與初始化 ---
+        /* --- 2. 初始化變數 --- */
         const budgetInput = document.getElementById('budget');
         const priceDisplay = document.getElementById('priceDisplay');
-        const drawBtn = document.getElementById('drawBtn');
+        const spinBtn = document.getElementById('spinBtn');
         const retryBtn = document.getElementById('retryBtn');
-        const screenMain = document.getElementById('screenMain');
-        const screenSub = document.getElementById('screenSub');
+        const reelStrip = document.getElementById('reelStrip');
         const actionArea = document.getElementById('actionArea');
         const mapLink = document.getElementById('mapLink');
 
-        // 金額顯示文字對照表
-        const priceRanges = [
-            "NT$ 0 - 150",     // Level 1
-            "NT$ 150 - 500",   // Level 2
-            "NT$ 500 - 1500",  // Level 3
-            "NT$ 1500 - 10000+"// Level 4
-        ];
+        const priceRanges = ["NT$ 0 - 150", "NT$ 150 - 500", "NT$ 500 - 1500", "NT$ 1500 - 10000+"];
+        const ITEM_HEIGHT = 100; // 對應 CSS .slot-item 的高度
 
-        // 監聽滑桿：更新顯示金額
+        // 滑桿連動文字
         budgetInput.addEventListener('input', function() {
-            const level = parseInt(this.value);
-            priceDisplay.textContent = priceRanges[level - 1];
+            priceDisplay.textContent = priceRanges[this.value - 1];
         });
 
-        // 監聽按鈕
-        drawBtn.addEventListener('click', startSlotMachine);
-        retryBtn.addEventListener('click', startSlotMachine);
+        // 按鈕監聽
+        spinBtn.addEventListener('click', startSpin);
+        retryBtn.addEventListener('click', resetAndSpin);
 
-        // --- 3. 拉霸機核心邏輯 ---
-        function startSlotMachine() {
-            // 取得當前篩選條件
+        function resetAndSpin() {
+            // 重置位置到頂部，不帶動畫
+            reelStrip.classList.remove('is-spinning');
+            reelStrip.style.transform = `translateY(0px)`;
+            
+            // 強制瀏覽器重繪 (Reflow)，確保下一步動畫會觸發
+            void reelStrip.offsetWidth;
+            
+            // 重新開始
+            startSpin();
+        }
+
+        function startSpin() {
+            // 1. 取得篩選條件
             const flavor = document.querySelector('input[name="flavor"]:checked').value;
             const temp = document.querySelector('input[name="temp"]:checked').value;
             const budgetLevel = parseInt(budgetInput.value);
 
-            // 篩選食物 (邏輯：價格 <= 選定的預算)
-            const candidates = foodDatabase.filter(food => {
-                return food.flavor === flavor && 
-                       food.temp === temp && 
-                       food.price <= budgetLevel;
-            });
+            // 2. 篩選資料
+            let candidates = foodDatabase.filter(food => 
+                food.flavor === flavor && food.temp === temp && food.price <= budgetLevel
+            );
 
+            // 防呆：如果真的找不到 (例如豪華+冷食可能很少)，就放寬標準
             if (candidates.length === 0) {
-                screenMain.textContent = "無相符項目";
-                screenSub.textContent = "請調整條件";
-                return;
+                candidates = [{name: "找不到...換個條件吧", price: 0}];
             }
 
-            // 狀態重置
-            actionArea.style.display = 'none'; // 隱藏結果按鈕
-            drawBtn.disabled = true;           // 鎖定按鈕防止連點
-            screenMain.classList.remove('winner-effect'); // 移除閃爍
-            screenSub.textContent = "CALCULATING...";
+            // 3. 準備「滾動長條」的內容
+            // 我們要建立一長串的 HTML，最後一個是「中獎結果」
+            // 為了看起來在隨機跑，我們隨機抓取 candidates 填充前面的位置
+            const TOTAL_ITEMS = 30; // 滾動總長度 (格數)
+            let stripHTML = '';
+            
+            // 隨機選一個「最終贏家」
+            const winner = candidates[Math.floor(Math.random() * candidates.length)];
 
-            // 動畫設定
-            let counter = 0;
-            const animationDuration = 3000; // 轉動持續時間 (毫秒) = 3秒
-            const spinIntervalSpeed = 80;   // 文字跳動速度 (毫秒)
+            // 建構前 29 個隨機項目 (讓視覺看起來在跑)
+            for (let i = 0; i < TOTAL_ITEMS - 1; i++) {
+                const randomItem = candidates[Math.floor(Math.random() * candidates.length)];
+                stripHTML += `<div class="slot-item">${randomItem.name}</div>`;
+            }
 
-            // 開始快速跳動文字 (Spinning effect)
-            const spinInterval = setInterval(() => {
-                const randomTemp = candidates[Math.floor(Math.random() * candidates.length)];
-                screenMain.textContent = randomTemp.name;
-                counter += spinIntervalSpeed;
-            }, spinIntervalSpeed);
+            // 加入最後一個「贏家」
+            stripHTML += `<div class="slot-item" style="color:#d32f2f; font-size: 2rem;">${winner.name}</div>`;
 
-            // 時間到，停止並顯示結果
+            // 更新 DOM
+            reelStrip.innerHTML = stripHTML;
+            
+            // 隱藏舊的按鈕
+            actionArea.style.display = 'none';
+            spinBtn.disabled = true;
+            spinBtn.textContent = "SPINNING...";
+
+            // 4. 執行滾動動畫
+            // 計算目標位置：向上移動 (總格數 - 1) * 高度
+            // 因為視窗只能看到一個，我們要讓最後一個停在視窗內
+            // 所以要移動的距離 = -(總長度 - 1) * 100px
+            const targetY = -(TOTAL_ITEMS - 1) * ITEM_HEIGHT;
+
+            // 加上動畫 Class
+            requestAnimationFrame(() => {
+                reelStrip.classList.add('is-spinning');
+                reelStrip.style.transform = `translateY(${targetY}px)`;
+            });
+
+            // 5. 動畫結束後的處理 (3秒後)
             setTimeout(() => {
-                clearInterval(spinInterval); // 停止跳動
+                reelStrip.classList.remove('is-spinning');
+                reelStrip.classList.add('is-stopped'); // 移除模糊
                 
-                // 選出最終結果
-                const finalChoice = candidates[Math.floor(Math.random() * candidates.length)];
-                
-                // 顯示結果
-                screenMain.textContent = finalChoice.name;
-                screenSub.textContent = `${finalChoice.flavor} | ${finalChoice.temp} | 預算等級:${finalChoice.price}`;
-                
-                // 添加中獎特效
-                screenMain.classList.add('winner-effect');
-                
-                // 解鎖按鈕與顯示地圖連結
-                drawBtn.disabled = false;
-                drawBtn.textContent = "🎰 SPIN AGAIN";
-                actionArea.style.display = 'flex'; // 顯示地圖/重抽按鈕
+                spinBtn.disabled = false;
+                spinBtn.textContent = "🎰 SPIN AGAIN";
+                actionArea.style.display = 'flex';
                 
                 // 設定地圖連結
-                mapLink.href = `http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(finalChoice.name)}`;
-
-            }, animationDuration);
+                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(winner.name)}`;
+                
+            }, 3000); // 這裡要跟 CSS 的 transition 時間一樣 (3s)
         }
     </script>
 </body>
